@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  db:
+    image: bitnami/postgresql:13.4.0
+    container_name: deye-admin
+    restart: always
+    environment:
+      - POSTGRES_USER=deye
+      - POSTGRES_PASSWORD=develop
+      - POSTGRESQL_DATABASE=deye_admin
+    ports:
+      - "5432:5432"
