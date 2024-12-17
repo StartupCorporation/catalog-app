@@ -1,55 +1,37 @@
 # Admin App
 
-## Setup Instructions
+Welcome to the **Admin App**! This document provides clear instructions on how to set up and run the application, along with information on accessing the OpenAPI documentation.
 
-To run the application, follow the steps below:
+---
 
-### 1. Export Environment Variables
-First, export the environment variables from the `app.env` file.
+## 🚀 Run Instructions
 
-#### For Ubuntu:
+### Linux
 
-1. Open the terminal and run:
+Follow these steps to run the application on an Ubuntu system:
 
-    ```bash
-    nano ~/.bashrc
-    ```
+1. **Ensure the `start.sh` script has execute permissions.**
 
-2. At the end of the file, add the environment variables from `app.env`. For example:
+   If the script is not executable, grant the required permissions by running:
+   ```bash
+   chmod +x start.sh
+   ```
 
-    ```bash
-    DB_USERNAME=your_db_username
-    DB_PASSWORD=your_db_password
-    ```
+2. **Start the application.**
 
-3. Save the changes and exit the file.
+   Once permissions are set, execute the script to start the application:
+   ```bash
+   ./start.sh
+   ```
 
-4. Apply the changes by running:
+---
 
-    ```bash
-    source ~/.bashrc
-    ```
+## 📖 OpenAPI Documentation
 
-5. Verify that the environment variables have been set correctly by running the following commands (example):
+Once the application is running, you can access the OpenAPI documentation to explore the available APIs:
 
-    ```bash
-    echo $DB_USERNAME
-    echo $DB_PASSWORD
-    ```
+- **URL:** [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
 
-### 2. Run the Database
+> **Note:** OpenAPI documentation is available only after the application has been started.
 
-You can either:
-
-- **Run the database via Docker** using the provided `docker-compose.yml` file:
-
-    ```bash
-    docker-compose up -d
-    ```
-
-- **Run the database manually** basing on env variables from app.env file.
-
-### 3. Run the Application
-
-Then you can start application in IDE.
-
+---
