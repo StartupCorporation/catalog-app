@@ -5,19 +5,28 @@ services:
     build:
       context: .
     environment:
+      - ADMIN_APP_PORT=${ADMIN_APP_PORT}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB=${DB}
-      - DB_HOST=db
+      - DB_HOST=${DOCKER_DB_HOST}
       - DB_PORT=${DB_PORT}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-      - MINIO_URL=http://minio:9000
+      - MINIO_URL=${DOCKER_MINIO_URL}
+      - MINIO_CLIENT_PORT=${MINIO_CLIENT_PORT}
+      - MINIO_CONSOLE_PORT=${MINIO_CONSOLE_PORT}
+      - RABBITMQ_HOST=${DOCKER_RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_UI_PORT=${RABBITMQ_UI_PORT}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
     ports:
-      - "8080:8080"
+      - '${DOCKER_APP_EXPOSE_PORT}:${ADMIN_APP_PORT}'
     depends_on:
       - db
       - minio
+
   db:
     image: bitnami/postgresql:13.4.0
     container_name: deye-admin_db
@@ -27,7 +36,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRESQL_DATABASE=${DB}
     ports:
-      - "5432:5432"
+      - '${DOCKER_DATABASE_EXPOSE_PORT}:${DB_PORT}'
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB}" ]
       interval: 1s
@@ -38,11 +47,21 @@ services:
     image: quay.io/minio/minio
     container_name: minio
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '${DOCKER_MINIO_CLIENT_EXPOSE_PORT}:${MINIO_CLIENT_PORT}'
+      - '${DOCKER_MINIO_CONSOLE_EXPOSE_PORT}:${MINIO_CONSOLE_PORT}'
     environment:
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
     volumes:
       - ~/minio/data:/data
     command: server /data --console-address ":9001"
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - '${DOCKER_RABBITMQ_EXPOSE_PORT}:${RABBITMQ_PORT}'
+      - "${DOCKER_RABBITMQ_UI_EXPOSE_PORT}:${RABBITMQ_UI_PORT}"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}

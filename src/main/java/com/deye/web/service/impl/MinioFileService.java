@@ -20,7 +20,7 @@ import static com.deye.web.utils.error.ErrorMessageUtils.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MinioService implements FileService {
+public class MinioFileService implements FileService {
     private static final String BUCKET = "deye-admin-files";
 
     private final ConfigService configService;
@@ -44,12 +44,6 @@ public class MinioService implements FileService {
         }
     }
 
-    /**
-     * This method uploads image to the minio.
-     *
-     * @param file
-     * @return file name saved in minio
-     */
     public String upload(MultipartFile file) {
         try (InputStream content = file.getInputStream()) {
             String fileName = UUID.randomUUID() + "_" + file.getName();
@@ -86,12 +80,6 @@ public class MinioService implements FileService {
         minio.putObject(putObjectArgs);
     }
 
-    /**
-     * Generates HTTP GET link to the minio file
-     *
-     * @param fileName
-     * @return HTTP GET file link
-     */
     public String generateFileLink(String fileName) {
         GetPresignedObjectUrlArgs urlArgs = GetPresignedObjectUrlArgs.builder()
                 .bucket(BUCKET)

@@ -17,7 +17,7 @@ public class CreateCategoryDto {
     private String name;
 
     @NotBlank(message = "Description can't be null or blank")
-    @Length(min = 10, max = 255, message = "Description length must be between 10 and 250")
+    @Length(min = 10, max = 255, message = "Description length must be between 10 and 255")
     private String description;
 
     @NotNull(message = "Image can't be null")

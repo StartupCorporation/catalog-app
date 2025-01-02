@@ -15,7 +15,7 @@ public class UpdateCategoryDto {
     @Length(min = 3, max = 50, message = "Name length must be between 3 and 50")
     private String name;
 
-    @Length(min = 10, max = 255, message = "Description length must be between 10 and 250")
+    @Length(min = 10, max = 255, message = "Description length must be between 10 and 255")
     private String description;
 
     @ImageType
