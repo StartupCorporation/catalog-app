@@ -1,4 +1,4 @@
-package com.deye.web.controller.dto.rabbitmq;
+package com.deye.web.async.message;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class UpsertCategoryMessage {
+public class SavedCategoryMessage {
     private UUID id;
     private LocalDateTime created_at;
     private String event_type;

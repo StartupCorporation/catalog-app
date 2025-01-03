@@ -23,7 +23,7 @@ public class RabbitMqPublisherService implements PublisherService {
         String message = rabbitMqMessageMapper.toUpsertCategoryMessage(category);
         try {
             rabbitMqProducer.send(RabbitMqUtil.EXCHANGE_NAME, RabbitMqUtil.CATEGORY_CONSUMER_ROUTING_KEY, message);
-            log.info("Message on category saved successfully to RabbitMQ, message:{}", message);
+            log.info("Message on category saved successfully sent to RabbitMQ, message:{}", message);
         } catch (Exception e) {
             log.error("Unable to send message: {} to RabbitMQ", message, e);
         }
@@ -34,7 +34,7 @@ public class RabbitMqPublisherService implements PublisherService {
         String message = rabbitMqMessageMapper.toDeleteCategoryMessage(categoryId);
         try {
             rabbitMqProducer.send(RabbitMqUtil.EXCHANGE_NAME, RabbitMqUtil.CATEGORY_CONSUMER_ROUTING_KEY, message);
-            log.info("Message on category deleted successfully to RabbitMQ, message:{}", message);
+            log.info("Message on category deleted successfully sent to RabbitMQ, message:{}", message);
         } catch (Exception e) {
             log.error("Unable to send message: {} to RabbitMQ", message, e);
         }

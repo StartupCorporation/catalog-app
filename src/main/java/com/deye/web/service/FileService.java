@@ -8,9 +8,8 @@ public interface FileService {
      * uploads file to the storage
      *
      * @param file - file, e.g image
-     * @return file name
      */
-    String upload(MultipartFile file);
+    void upload(MultipartFile file);
 
     /**
      * deletes file from storage

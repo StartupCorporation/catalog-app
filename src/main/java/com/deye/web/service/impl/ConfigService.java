@@ -11,8 +11,7 @@ public class ConfigService {
     private final Environment env;
 
     public String getMinioBucketName() {
-        String bucketName = env.getProperty("minio.bucket.name");
-        return StringUtils.isNotBlank(bucketName) ? bucketName : "deye-admin-files";
+        return env.getProperty("minio.bucket.name");
     }
 
     public String getMinioSecretKey() {
