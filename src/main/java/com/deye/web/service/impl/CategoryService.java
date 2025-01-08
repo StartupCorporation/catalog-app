@@ -5,12 +5,17 @@ import com.deye.web.controller.dto.UpdateCategoryDto;
 import com.deye.web.controller.view.CategoryView;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.exception.EntityNotFoundException;
+import com.deye.web.listeners.events.DeletedCategoryEvent;
+import com.deye.web.listeners.events.SavedCategoryEvent;
 import com.deye.web.mapper.CategoryMapper;
 import com.deye.web.repository.CategoryRepository;
+import com.deye.web.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +30,10 @@ import static com.deye.web.utils.error.ErrorMessageUtils.CATEGORY_NOT_FOUND_ERRO
 @RequiredArgsConstructor
 @Slf4j
 public class CategoryService {
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    private final MinioService minioService;
+    private final FileService fileService;
 
     /**
      * Method for creating category to add new product type
@@ -37,13 +43,13 @@ public class CategoryService {
     @Transactional
     public void create(CreateCategoryDto categoryDto) {
         log.info("Creating category: name - {}, description - {} and image - {}", categoryDto.getName(), categoryDto.getDescription(), categoryDto.getImage().getName());
+        MultipartFile image = categoryDto.getImage();
         CategoryEntity category = new CategoryEntity();
         category.setName(categoryDto.getName());
         category.setDescription(categoryDto.getDescription());
-        String fileName = minioService.upload(categoryDto.getImage());
-        category.setImage(fileName);
+        category.setImage(image.getOriginalFilename());
         categoryRepository.save(category);
-        log.info("Category created: {}", category);
+        applicationEventPublisher.publishEvent(new SavedCategoryEvent(category, image));
     }
 
     @Transactional
@@ -65,8 +71,10 @@ public class CategoryService {
     @Transactional
     public void deleteById(UUID id) {
         log.info("Deleting category by id: {}", id);
-        categoryRepository.deleteById(id);
-        log.info("Category deleted: {}", id);
+        CategoryEntity category = getCategoryEntityById(id);
+        log.info("Category with id: {} found", id);
+        categoryRepository.delete(category);
+        applicationEventPublisher.publishEvent(new DeletedCategoryEvent(id, category.getImage().getName()));
     }
 
     @Transactional
@@ -81,14 +89,15 @@ public class CategoryService {
             category.setDescription(categoryDto.getDescription());
             log.info("Category new description is set");
         }
-        if (categoryDto.getImage() != null) {
-            minioService.delete(category.getImage().getName());
-            String fileName = minioService.upload(categoryDto.getImage());
-            category.setImage(fileName);
+        MultipartFile newImage = categoryDto.getImage();
+        String previousImageName = "";
+        if (newImage != null) {
+            previousImageName = category.getImage().getName();
+            category.setImage(newImage.getOriginalFilename());
             log.info("Category new image is set");
         }
         categoryRepository.save(category);
-        log.info("Category updated: {}", category);
+        applicationEventPublisher.publishEvent(new SavedCategoryEvent(category, newImage, previousImageName));
     }
 
     private CategoryEntity getCategoryEntityById(UUID id) {
