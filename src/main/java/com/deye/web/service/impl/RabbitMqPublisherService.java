@@ -27,6 +27,7 @@ public class RabbitMqPublisherService implements PublisherService {
             log.info("Message on category saved successfully sent to RabbitMQ, message:{}", message);
         } catch (Exception e) {
             log.error("Unable to send message: {} to RabbitMQ", message, e);
+            throw e;
         }
     }
 
@@ -38,6 +39,7 @@ public class RabbitMqPublisherService implements PublisherService {
             log.info("Message on category deleted successfully sent to RabbitMQ, message:{}", message);
         } catch (Exception e) {
             log.error("Unable to send message: {} to RabbitMQ", message, e);
+            throw e;
         }
     }
 
@@ -49,6 +51,7 @@ public class RabbitMqPublisherService implements PublisherService {
             log.info("Message on product saved successfully sent to RabbitMQ, message:{}", message);
         } catch (Exception e) {
             log.error("Unable to send message: {} to RabbitMQ", message, e);
+            throw e;
         }
     }
 
@@ -60,6 +63,7 @@ public class RabbitMqPublisherService implements PublisherService {
             log.info("Message on product deleted successfully sent to RabbitMQ, message:{}", message);
         } catch (Exception e) {
             log.error("Unable to send message: {} to RabbitMQ", message, e);
+            throw e;
         }
     }
 }

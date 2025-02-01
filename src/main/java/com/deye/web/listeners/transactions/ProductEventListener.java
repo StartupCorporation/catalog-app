@@ -1,9 +1,9 @@
 package com.deye.web.listeners.transactions;
 
 import com.deye.web.entity.ProductEntity;
+import com.deye.web.exception.TransactionConsistencyException;
 import com.deye.web.listeners.events.DeletedProductEvent;
 import com.deye.web.listeners.events.SavedProductEvent;
-import com.deye.web.repository.ProductRepository;
 import com.deye.web.service.FileService;
 import com.deye.web.service.PublisherService;
 import lombok.RequiredArgsConstructor;
@@ -19,21 +19,34 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductEventListener {
-    private final ProductRepository productRepository;
     private final PublisherService publisherService;
     private final FileService fileService;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onProductSaved(SavedProductEvent event) {
-        ProductEntity product = event.getProduct();
-        UUID productId = product.getId();
-        MultipartFile[] images = event.getImages();
-        log.info("Product with id: {} successfully saved to db. Trying to upload image to the storage", productId);
-        for (MultipartFile image : images) {
-            uploadNewProductImage(image, productId);
+        try {
+            ProductEntity product = event.getProduct();
+            UUID productId = product.getId();
+            MultipartFile[] imagesToAdd = event.getImagesToAdd();
+            log.info("Product with id: {} successfully saved to db", productId);
+            if (imagesToAdd != null) {
+                log.info("Adding images to db, productId: {}", productId);
+                for (MultipartFile image : imagesToAdd) {
+                    uploadNewProductImage(image, productId);
+                }
+            }
+            if (event.getImagesToRemove() != null) {
+                for (String imageToRemove : event.getImagesToRemove()) {
+                    log.info("Removing image from the storage as it was marked as to delete: {}", imageToRemove);
+                    deleteProductImage(imageToRemove);
+                }
+            }
+            log.info("All product {} images successfully saved to file storage. Trying to seng message to message broker", productId);
+            publisherService.onProductSaved(product);
+        } catch (Exception e) {
+            log.error("Transaction consistency exception, rollback it");
+            throw new TransactionConsistencyException(e);
         }
-        log.info("All product {} images successfully saved to file storage. Trying to seng message to message broker", productId);
-        publisherService.onProductSaved(product);
     }
 
     private void uploadNewProductImage(MultipartFile image, UUID productId) {
@@ -41,29 +54,34 @@ public class ProductEventListener {
         try {
             fileService.upload(image);
         } catch (Exception e) {
-            log.error("Product image uploading failed. Deleting product with id: {}", productId);
-            productRepository.deleteById(productId);
+            log.error("Product image uploading failed. id: {}", productId);
             throw e;
         }
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onProductDeleted(DeletedProductEvent event) {
-        UUID productId = event.getProductId();
-        log.info("Product with id: {} successfully deleted from DB. Trying to delete its images from storage", productId);
-        for (String imageName : event.getImageNames()) {
-            deleteProductImage(imageName);
+        try {
+            UUID productId = event.getProductId();
+            log.info("Product with id: {} successfully deleted from DB. Trying to delete its images from storage", productId);
+            for (String imageName : event.getImageNames()) {
+                deleteProductImage(imageName);
+            }
+            log.info("Product {} images deleted from file storage. Trying to seng message to message broker", productId);
+            publisherService.onProductDeleted(productId);
+        } catch (Exception e) {
+            log.error("Transaction consistency exception, rollback it");
+            throw new TransactionConsistencyException(e);
         }
-        log.info("Product {} images deleted from file storage. Trying to seng message to message broker", productId);
-        publisherService.onProductDeleted(productId);
     }
 
     private void deleteProductImage(String fileName) {
         try {
             fileService.delete(fileName);
-            log.info("Category image with name: {} successfully deleted from file storage", fileName);
+            log.info("Product image with name: {} successfully deleted from file storage", fileName);
         } catch (Exception e) {
-            log.error("Category image with name: {} deletion failed. Please try again manually.", fileName);
+            log.error("Product image with name: {} deletion failed. Please try again manually.", fileName);
+            throw e;
         }
     }
 }

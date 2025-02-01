@@ -24,7 +24,7 @@ public class ImageTypeValidator implements ConstraintValidator<ImageType, Object
             }
         }
 
-        return false;
+        return true;
     }
 
     private boolean isValidContentType(String contentType) {

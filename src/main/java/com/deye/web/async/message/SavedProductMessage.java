@@ -18,8 +18,8 @@ public class SavedProductMessage extends RabbitMqMessage {
         private String name;
         private String description;
         private Float price;
-        private Integer stockQuantity;
-        private UUID categoryId;
+        private Integer stock_quantity;
+        private UUID category_id;
         private Set<String> images;
     }
 }

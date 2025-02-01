@@ -1,10 +1,12 @@
 package com.deye.web.service.impl;
 
 import com.deye.web.controller.dto.CreateProductDto;
+import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.view.ProductView;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.exception.EntityNotFoundException;
+import com.deye.web.exception.TransactionConsistencyException;
 import com.deye.web.listeners.events.DeletedProductEvent;
 import com.deye.web.listeners.events.SavedProductEvent;
 import com.deye.web.mapper.ProductMapper;
@@ -33,7 +35,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    @Transactional
+    @Transactional(rollbackFor = TransactionConsistencyException.class)
     public void save(CreateProductDto createProductDto) {
         log.info("Starting to save product: {}", createProductDto.getName());
 
@@ -53,7 +55,7 @@ public class ProductService {
                 .collect(Collectors.toSet());
 
         product.setImages(imagesNames);
-        productRepository.save(product);
+        productRepository.saveAndFlush(product);
         eventPublisher.publishEvent(new SavedProductEvent(product, images));
     }
 
@@ -75,13 +77,44 @@ public class ProductService {
         return productMapper.toProductView(product);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = TransactionConsistencyException.class)
     public void deleteById(UUID id) {
         log.info("Deleting product by ID={}", id);
         ProductEntity product = getProductEntityById(id);
         log.info("Product found: {}", product.getId());
         productRepository.delete(product);
         eventPublisher.publishEvent(new DeletedProductEvent(id, product.getImagesNames()));
+    }
+
+    @Transactional(rollbackFor = TransactionConsistencyException.class)
+    public void update(UUID id, UpdateProductDto updateProductDto) {
+        log.info("Updating product by ID={}", id);
+        ProductEntity product = getProductEntityById(id);
+        MultipartFile[] imagesToAdd = updateProductDto.getImagesToAdd();
+        List<String> imagesNamesToRemove = updateProductDto.getImagesToRemove();
+        if (updateProductDto.getName() != null) {
+            product.setName(updateProductDto.getName());
+        }
+        if (updateProductDto.getDescription() != null) {
+            product.setDescription(updateProductDto.getDescription());
+        }
+        if (updateProductDto.getPrice() != null) {
+            product.setPrice(updateProductDto.getPrice());
+        }
+        if (updateProductDto.getStockQuantity() != null) {
+            product.setStockQuantity(updateProductDto.getStockQuantity());
+        }
+        if (imagesToAdd != null) {
+            Set<String> imagesNamesToAdd = Arrays.stream(imagesToAdd)
+                    .map(MultipartFile::getOriginalFilename)
+                    .collect(Collectors.toSet());
+            product.setImages(imagesNamesToAdd);
+        }
+        if (imagesNamesToRemove != null) {
+            product.removeImages(updateProductDto.getImagesToRemove());
+        }
+        productRepository.saveAndFlush(product);
+        eventPublisher.publishEvent(new SavedProductEvent(product, imagesToAdd, imagesNamesToRemove));
     }
 
     private ProductEntity getProductEntityById(UUID id) {

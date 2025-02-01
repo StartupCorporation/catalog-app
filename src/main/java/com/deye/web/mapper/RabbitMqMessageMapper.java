@@ -77,8 +77,8 @@ public class RabbitMqMessageMapper {
         savedProductPayload.setName(product.getName());
         savedProductPayload.setDescription(product.getDescription());
         savedProductPayload.setPrice(product.getPrice());
-        savedProductPayload.setStockQuantity(product.getStockQuantity());
-        savedProductPayload.setCategoryId(product.getCategory().getId());
+        savedProductPayload.setStock_quantity(product.getStockQuantity());
+        savedProductPayload.setCategory_id(product.getCategory().getId());
         savedProductPayload.setImages(product.getImagesNames());
 
         //message

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,15 +28,23 @@ public class ProductEntity {
     @JoinColumn(name = "CATEGORY_ID")
     private CategoryEntity category;
 
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true, mappedBy = "product")
     private Set<FileEntity> images = new HashSet<>();
 
     public void setImages(Set<String> fileNames) {
         for (String fileName : fileNames) {
             FileEntity productImage = new FileEntity();
             productImage.setName(fileName);
+            productImage.setProduct(this);
             this.images.add(productImage);
         }
+    }
+
+    public void removeImages(List<String> fileNames) {
+        Set<FileEntity> toRemove = images.stream()
+                .filter(image -> fileNames.contains(image.getName()))
+                .collect(Collectors.toSet());
+        images.removeAll(toRemove);
     }
 
     public Set<String> getImagesNames() {
