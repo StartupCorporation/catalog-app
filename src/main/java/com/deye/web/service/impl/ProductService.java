@@ -94,16 +94,16 @@ public class ProductService {
         ProductEntity product = getProductEntityById(id);
         MultipartFile[] imagesToAdd = updateProductDto.getImagesToAdd();
         List<String> imagesNamesToRemove = updateProductDto.getImagesToRemove();
-        if (updateProductDto.getName() != null) {
+        if (updateProductDto.getName() != null && !updateProductDto.getName().equals(product.getName())) {
             product.setName(updateProductDto.getName());
         }
-        if (updateProductDto.getDescription() != null) {
+        if (updateProductDto.getDescription() != null && !updateProductDto.getDescription().equals(product.getDescription())) {
             product.setDescription(updateProductDto.getDescription());
         }
-        if (updateProductDto.getPrice() != null) {
+        if (updateProductDto.getPrice() != null && !updateProductDto.getPrice().equals(product.getPrice())) {
             product.setPrice(updateProductDto.getPrice());
         }
-        if (updateProductDto.getStockQuantity() != null) {
+        if (updateProductDto.getStockQuantity() != null && !updateProductDto.getStockQuantity().equals(product.getStockQuantity())) {
             product.setStockQuantity(updateProductDto.getStockQuantity());
         }
         if (imagesToAdd != null) {

@@ -80,11 +80,11 @@ public class CategoryService {
     public void update(UUID id, UpdateCategoryDto categoryDto) {
         log.info("Updating category with id: {}", id);
         CategoryEntity category = getCategoryEntityById(id);
-        if (categoryDto.getName() != null) {
+        if (categoryDto.getName() != null && !categoryDto.getName().equals(category.getName())) {
             category.setName(categoryDto.getName());
             log.info("Category new name is set");
         }
-        if (categoryDto.getDescription() != null) {
+        if (categoryDto.getDescription() != null && categoryDto.getDescription().equals(category.getName())) {
             category.setDescription(categoryDto.getDescription());
             log.info("Category new description is set");
         }
