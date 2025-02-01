@@ -15,6 +15,7 @@ import com.deye.web.utils.error.ErrorCodeUtils;
 import com.deye.web.utils.error.ErrorMessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ApplicationEventPublisher eventPublisher;
     private final CategoryService categoryService;
+    private final ConfigService configService;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
@@ -111,7 +113,16 @@ public class ProductService {
             product.setImages(imagesNamesToAdd);
         }
         if (imagesNamesToRemove != null) {
-            product.removeImages(updateProductDto.getImagesToRemove());
+            String bucketName = configService.getMinioBucketName();
+            imagesNamesToRemove = imagesNamesToRemove.stream()
+                    .map(fileName -> {
+                        if (StringUtils.contains(fileName, bucketName + "/")) {
+                            fileName = StringUtils.substringAfter(fileName, bucketName + "/");
+                        }
+                        return fileName;
+                    })
+                    .toList();
+            product.removeImages(imagesNamesToRemove);
         }
         productRepository.saveAndFlush(product);
         eventPublisher.publishEvent(new SavedProductEvent(product, imagesToAdd, imagesNamesToRemove));

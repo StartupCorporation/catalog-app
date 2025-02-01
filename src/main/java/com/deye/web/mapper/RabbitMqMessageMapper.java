@@ -7,17 +7,19 @@ import com.deye.web.async.message.SavedProductMessage;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.exception.EventMessageException;
+import com.deye.web.service.impl.ConfigService;
 import com.deye.web.utils.error.ErrorCodeUtils;
 import com.deye.web.utils.error.ErrorMessageUtils;
 import com.deye.web.utils.rabbitmq.RabbitMqUtil;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.deye.web.async.message.DeletedCategoryMessage.DeleteCategoryPayload;
 import static com.deye.web.async.message.SavedCategoryMessage.SavedCategoryPayload;
@@ -25,8 +27,9 @@ import static com.deye.web.async.message.SavedProductMessage.SavedProductPayload
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RabbitMqMessageMapper {
-    private static final Logger log = LoggerFactory.getLogger(RabbitMqMessageMapper.class);
+    private final ConfigService configService;
     private final Gson gson;
 
     public String toSavedCategoryMessage(CategoryEntity category) {
@@ -35,7 +38,7 @@ public class RabbitMqMessageMapper {
         savedCategoryPayload.setId(category.getId());
         savedCategoryPayload.setName(category.getName());
         savedCategoryPayload.setDescription(category.getDescription());
-        savedCategoryPayload.setImage(category.getImage().getName());
+        savedCategoryPayload.setImage(configService.getMinioBucketName() + "/" + category.getImage().getName());
 
         // message
         SavedCategoryMessage savedCategoryMessage = new SavedCategoryMessage();
@@ -79,7 +82,10 @@ public class RabbitMqMessageMapper {
         savedProductPayload.setPrice(product.getPrice());
         savedProductPayload.setStock_quantity(product.getStockQuantity());
         savedProductPayload.setCategory_id(product.getCategory().getId());
-        savedProductPayload.setImages(product.getImagesNames());
+        Set<String> imageNames = product.getImagesNames().stream()
+                .map(image -> configService.getMinioBucketName() + "/" + image)
+                .collect(Collectors.toSet());
+        savedProductPayload.setImages(imageNames);
 
         //message
         SavedProductMessage savedProductMessage = new SavedProductMessage();
