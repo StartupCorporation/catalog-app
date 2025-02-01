@@ -5,11 +5,11 @@ import com.deye.web.controller.dto.UpdateCategoryDto;
 import com.deye.web.controller.view.CategoryView;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.exception.EntityNotFoundException;
+import com.deye.web.exception.TransactionConsistencyException;
 import com.deye.web.listeners.events.DeletedCategoryEvent;
 import com.deye.web.listeners.events.SavedCategoryEvent;
 import com.deye.web.mapper.CategoryMapper;
 import com.deye.web.repository.CategoryRepository;
-import com.deye.web.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,22 +33,21 @@ public class CategoryService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    private final FileService fileService;
 
     /**
      * Method for creating category to add new product type
      *
      * @param categoryDto - category parameters
      */
-    @Transactional
+    @Transactional(rollbackFor = TransactionConsistencyException.class)
     public void create(CreateCategoryDto categoryDto) {
-        log.info("Creating category: name - {}, description - {} and image - {}", categoryDto.getName(), categoryDto.getDescription(), categoryDto.getImage().getName());
+        log.info("Creating category: name - {}, description - {} and image - {}", categoryDto.getName(), categoryDto.getDescription(), categoryDto.getImage().getOriginalFilename());
         MultipartFile image = categoryDto.getImage();
         CategoryEntity category = new CategoryEntity();
         category.setName(categoryDto.getName());
         category.setDescription(categoryDto.getDescription());
         category.setImage(image.getOriginalFilename());
-        categoryRepository.save(category);
+        categoryRepository.saveAndFlush(category);
         applicationEventPublisher.publishEvent(new SavedCategoryEvent(category, image));
     }
 
@@ -68,7 +67,7 @@ public class CategoryService {
         return categoryMapper.toCategoryView(category);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = TransactionConsistencyException.class)
     public void deleteById(UUID id) {
         log.info("Deleting category by id: {}", id);
         CategoryEntity category = getCategoryEntityById(id);
@@ -77,7 +76,7 @@ public class CategoryService {
         applicationEventPublisher.publishEvent(new DeletedCategoryEvent(id, category.getImage().getName()));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = TransactionConsistencyException.class)
     public void update(UUID id, UpdateCategoryDto categoryDto) {
         log.info("Updating category with id: {}", id);
         CategoryEntity category = getCategoryEntityById(id);
@@ -96,11 +95,12 @@ public class CategoryService {
             category.setImage(newImage.getOriginalFilename());
             log.info("Category new image is set");
         }
-        categoryRepository.save(category);
+        categoryRepository.saveAndFlush(category);
         applicationEventPublisher.publishEvent(new SavedCategoryEvent(category, newImage, previousImageName));
     }
 
-    private CategoryEntity getCategoryEntityById(UUID id) {
+    @Transactional
+    public CategoryEntity getCategoryEntityById(UUID id) {
         Optional<CategoryEntity> categoryOptional = categoryRepository.findById(id);
         if (categoryOptional.isEmpty()) {
             log.error("Category with id: {} not found", id);

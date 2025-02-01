@@ -6,14 +6,28 @@ import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
-public class ImageTypeValidator implements ConstraintValidator<ImageType, MultipartFile> {
+public class ImageTypeValidator implements ConstraintValidator<ImageType, Object> {
 
     @Override
-    public boolean isValid(MultipartFile value, ConstraintValidatorContext context) {
+    public boolean isValid(Object value, ConstraintValidatorContext context) {
         if (value == null) {
             return true;
         }
-        String contentType = value.getContentType();
+        if (value instanceof MultipartFile file) {
+            return isValidContentType(file.getContentType());
+        }
+
+        if (value instanceof MultipartFile[] files) {
+            for (MultipartFile file : files) {
+                if (file == null) continue;
+                if (!isValidContentType(file.getContentType())) return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isValidContentType(String contentType) {
         return MediaType.IMAGE_JPEG_VALUE.equals(contentType) || MediaType.IMAGE_PNG_VALUE.equals(contentType);
     }
 }

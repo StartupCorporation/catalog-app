@@ -1,6 +1,7 @@
 package com.deye.web.service;
 
 import com.deye.web.entity.CategoryEntity;
+import com.deye.web.entity.ProductEntity;
 
 import java.util.UUID;
 
@@ -9,5 +10,10 @@ import java.util.UUID;
  */
 public interface PublisherService {
     void onCategorySaved(CategoryEntity category);
+
     void onCategoryDeleted(UUID categoryId);
+
+    void onProductSaved(ProductEntity product);
+
+    void onProductDeleted(UUID productId);
 }

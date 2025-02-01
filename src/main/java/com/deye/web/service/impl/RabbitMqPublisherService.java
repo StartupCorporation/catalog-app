@@ -2,6 +2,7 @@ package com.deye.web.service.impl;
 
 import com.deye.web.async.RabbitMqProducer;
 import com.deye.web.entity.CategoryEntity;
+import com.deye.web.entity.ProductEntity;
 import com.deye.web.mapper.RabbitMqMessageMapper;
 import com.deye.web.service.PublisherService;
 import com.deye.web.utils.rabbitmq.RabbitMqUtil;
@@ -26,6 +27,7 @@ public class RabbitMqPublisherService implements PublisherService {
             log.info("Message on category saved successfully sent to RabbitMQ, message:{}", message);
         } catch (Exception e) {
             log.error("Unable to send message: {} to RabbitMQ", message, e);
+            throw e;
         }
     }
 
@@ -37,6 +39,31 @@ public class RabbitMqPublisherService implements PublisherService {
             log.info("Message on category deleted successfully sent to RabbitMQ, message:{}", message);
         } catch (Exception e) {
             log.error("Unable to send message: {} to RabbitMQ", message, e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void onProductSaved(ProductEntity product) {
+        String message = rabbitMqMessageMapper.toSavedProductMessage(product);
+        try {
+            rabbitMqProducer.send(RabbitMqUtil.EXCHANGE_NAME, RabbitMqUtil.PRODUCT_CONSUMER_ROUTING_KEY, message);
+            log.info("Message on product saved successfully sent to RabbitMQ, message:{}", message);
+        } catch (Exception e) {
+            log.error("Unable to send message: {} to RabbitMQ", message, e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void onProductDeleted(UUID productId) {
+        String message = rabbitMqMessageMapper.toDeletedProductMessage(productId);
+        try {
+            rabbitMqProducer.send(RabbitMqUtil.EXCHANGE_NAME, RabbitMqUtil.PRODUCT_CONSUMER_ROUTING_KEY, message);
+            log.info("Message on product deleted successfully sent to RabbitMQ, message:{}", message);
+        } catch (Exception e) {
+            log.error("Unable to send message: {} to RabbitMQ", message, e);
+            throw e;
         }
     }
 }
