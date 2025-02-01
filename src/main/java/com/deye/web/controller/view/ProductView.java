@@ -15,5 +15,6 @@ public class ProductView {
     private Float price;
     private Integer stockQuantity;
     private UUID categoryId;
+    private String categoryName;
     private Set<String> images;
 }

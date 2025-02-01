@@ -22,6 +22,7 @@ public class ProductMapper {
                 .price(product.getPrice())
                 .stockQuantity(product.getStockQuantity())
                 .categoryId(product.getCategory().getId())
+                .categoryName(product.getCategory().getName())
                 .images(product.getImagesNames().stream().map(image -> bucketUrl + image).collect(Collectors.toSet()))
                 .build();
     }
