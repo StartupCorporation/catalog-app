@@ -9,7 +9,6 @@ import com.deye.web.listeners.events.DeletedCategoryEvent;
 import com.deye.web.listeners.events.SavedCategoryEvent;
 import com.deye.web.mapper.CategoryMapper;
 import com.deye.web.repository.CategoryRepository;
-import com.deye.web.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,7 +32,6 @@ public class CategoryService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    private final FileService fileService;
 
     /**
      * Method for creating category to add new product type
@@ -100,7 +98,8 @@ public class CategoryService {
         applicationEventPublisher.publishEvent(new SavedCategoryEvent(category, newImage, previousImageName));
     }
 
-    private CategoryEntity getCategoryEntityById(UUID id) {
+    @Transactional
+    public CategoryEntity getCategoryEntityById(UUID id) {
         Optional<CategoryEntity> categoryOptional = categoryRepository.findById(id);
         if (categoryOptional.isEmpty()) {
             log.error("Category with id: {} not found", id);

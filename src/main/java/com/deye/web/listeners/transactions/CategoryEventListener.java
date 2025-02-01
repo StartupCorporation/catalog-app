@@ -38,6 +38,7 @@ public class CategoryEventListener {
             log.info("Previous image name is {}. Deleting this from file storage", previousImageName);
             deleteCategoryImage(previousImageName);
         }
+        log.info("Trying to push notification to message broker for category saving : {}", categoryId);
         publisherService.onCategorySaved(savedCategoryEvent.getCategory());
     }
 
@@ -58,6 +59,7 @@ public class CategoryEventListener {
         log.info("Category with id: {} successfully deleted from DB. Trying to delete its image from storage", categoryId);
         String fileName = deletedCategoryEvent.getFileName();
         deleteCategoryImage(fileName);
+        log.info("Trying to push notification to message broker for category deletion : {}", categoryId);
         publisherService.onCategoryDeleted(categoryId);
     }
 

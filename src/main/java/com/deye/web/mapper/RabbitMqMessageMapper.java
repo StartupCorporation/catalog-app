@@ -3,7 +3,9 @@ package com.deye.web.mapper;
 import com.deye.web.async.message.AskedCallbackRequestMessage;
 import com.deye.web.async.message.DeletedCategoryMessage;
 import com.deye.web.async.message.SavedCategoryMessage;
+import com.deye.web.async.message.SavedProductMessage;
 import com.deye.web.entity.CategoryEntity;
+import com.deye.web.entity.ProductEntity;
 import com.deye.web.exception.EventMessageException;
 import com.deye.web.utils.error.ErrorCodeUtils;
 import com.deye.web.utils.error.ErrorMessageUtils;
@@ -19,6 +21,7 @@ import java.util.UUID;
 
 import static com.deye.web.async.message.DeletedCategoryMessage.DeleteCategoryPayload;
 import static com.deye.web.async.message.SavedCategoryMessage.SavedCategoryPayload;
+import static com.deye.web.async.message.SavedProductMessage.SavedProductPayload;
 
 @Component
 @RequiredArgsConstructor
@@ -65,5 +68,37 @@ public class RabbitMqMessageMapper {
             log.error(e.getMessage());
             throw new EventMessageException(ErrorCodeUtils.EVENT_MESSAGE_NOT_PROCEED_ERROR_CODE, ErrorMessageUtils.EVENT_MESSAGE_NOT_PROCEED_ERROR_MESSAGE);
         }
+    }
+
+    public String toSavedProductMessage(ProductEntity product) {
+        // payload
+        SavedProductPayload savedProductPayload = new SavedProductPayload();
+        savedProductPayload.setId(product.getId());
+        savedProductPayload.setName(product.getName());
+        savedProductPayload.setDescription(product.getDescription());
+        savedProductPayload.setPrice(product.getPrice());
+        savedProductPayload.setStockQuantity(product.getStockQuantity());
+        savedProductPayload.setCategoryId(product.getCategory().getId());
+        savedProductPayload.setImages(product.getImagesNames());
+
+        //message
+        SavedProductMessage savedProductMessage = new SavedProductMessage();
+        savedProductMessage.setId(UUID.randomUUID());
+        savedProductMessage.setCreated_at(LocalDateTime.now());
+        savedProductMessage.setEvent_type(RabbitMqUtil.PRODUCT_SAVED_EVENT);
+        savedProductMessage.setData(savedProductPayload);
+        return gson.toJson(savedProductMessage);
+    }
+
+    public String toDeletedProductMessage(UUID productId) {
+        DeleteCategoryPayload payload = new DeleteCategoryPayload();
+        payload.setId(productId);
+
+        DeletedCategoryMessage message = new DeletedCategoryMessage();
+        message.setId(UUID.randomUUID());
+        message.setCreated_at(LocalDateTime.now());
+        message.setEvent_type(RabbitMqUtil.PRODUCT_DELETED_EVENT);
+        message.setData(payload);
+        return gson.toJson(message);
     }
 }

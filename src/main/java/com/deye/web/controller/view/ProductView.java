@@ -2,16 +2,18 @@ package com.deye.web.controller.view;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Builder
-public class CategoryView {
+public class ProductView {
     private UUID id;
     private String name;
     private String description;
-    private String image;
+    private Float price;
+    private Integer stockQuantity;
+    private UUID categoryId;
+    private Set<String> images;
 }
