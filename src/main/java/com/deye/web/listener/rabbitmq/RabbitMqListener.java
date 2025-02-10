@@ -1,10 +1,10 @@
-package com.deye.web.listeners.rabbitmq;
+package com.deye.web.listener.rabbitmq;
 
 import com.deye.web.async.message.AskedCallbackRequestMessage;
-import com.deye.web.listeners.MessageBrokerListener;
+import com.deye.web.listener.MessageBrokerListener;
 import com.deye.web.mapper.RabbitMqMessageMapper;
 import com.deye.web.service.impl.CallbackRequestService;
-import com.deye.web.utils.rabbitmq.RabbitMqUtil;
+import com.deye.web.util.rabbitmq.RabbitMqUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

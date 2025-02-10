@@ -1,4 +1,4 @@
-package com.deye.web.listeners;
+package com.deye.web.listener;
 
 public interface MessageBrokerListener {
     void askedCallbackRequest(String message);

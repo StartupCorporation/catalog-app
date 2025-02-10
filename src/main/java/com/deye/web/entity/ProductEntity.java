@@ -31,6 +31,9 @@ public class ProductEntity {
     @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true, mappedBy = "product")
     private Set<FileEntity> images = new HashSet<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<AttributeProductValuesEntity> attributesValuesForProduct;
+
     public void setImages(Set<String> fileNames) {
         for (String fileName : fileNames) {
             FileEntity productImage = new FileEntity();

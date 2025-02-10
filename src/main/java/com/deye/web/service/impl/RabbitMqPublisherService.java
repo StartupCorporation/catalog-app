@@ -5,7 +5,7 @@ import com.deye.web.entity.CategoryEntity;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.mapper.RabbitMqMessageMapper;
 import com.deye.web.service.PublisherService;
-import com.deye.web.utils.rabbitmq.RabbitMqUtil;
+import com.deye.web.util.rabbitmq.RabbitMqUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.deye.web.utils.rabbitmq;
+package com.deye.web.util.rabbitmq;
 
 import lombok.experimental.UtilityClass;
 

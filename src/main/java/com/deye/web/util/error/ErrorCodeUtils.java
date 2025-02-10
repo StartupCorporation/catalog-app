@@ -1,4 +1,4 @@
-package com.deye.web.utils.error;
+package com.deye.web.util.error;
 
 import lombok.experimental.UtilityClass;
 
@@ -11,4 +11,5 @@ public class ErrorCodeUtils {
     public static final Integer DATABASE_ERROR_CODE = 5;
     public static final Integer EVENT_MESSAGE_NOT_PROCEED_ERROR_CODE = 6;
     public static final Integer PRODUCT_NOT_FOUND_ERROR_CODE = 7;
+    public static final Integer JSON_PARSE_ERROR_CODE = 8;
 }

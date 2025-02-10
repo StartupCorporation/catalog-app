@@ -3,9 +3,10 @@ package com.deye.web.exception.handler;
 import com.deye.web.exception.EntityNotFoundException;
 import com.deye.web.exception.EventMessageException;
 import com.deye.web.exception.FileStorageException;
+import com.deye.web.exception.JsonException;
 import com.deye.web.exception.response.DatabaseConstraintErrorResponseDto;
 import com.deye.web.exception.response.ErrorResponseDto;
-import com.deye.web.utils.error.ErrorCodeUtils;
+import com.deye.web.util.error.ErrorCodeUtils;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,6 +35,14 @@ public class CommonExceptionHandler {
 
     @ExceptionHandler(value = EventMessageException.class)
     public ResponseEntity<ErrorResponseDto> handleEventMessageException(EventMessageException e) {
+        ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+        errorResponseDto.setCode(e.getCode());
+        errorResponseDto.setMessage(e.getMessage());
+        return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = JsonException.class)
+    public ResponseEntity<ErrorResponseDto> handleJsonException(JsonException e) {
         ErrorResponseDto errorResponseDto = new ErrorResponseDto();
         errorResponseDto.setCode(e.getCode());
         errorResponseDto.setMessage(e.getMessage());

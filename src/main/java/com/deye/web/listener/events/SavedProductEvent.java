@@ -1,4 +1,4 @@
-package com.deye.web.listeners.events;
+package com.deye.web.listener.events;
 
 import com.deye.web.entity.ProductEntity;
 import lombok.AllArgsConstructor;
@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter

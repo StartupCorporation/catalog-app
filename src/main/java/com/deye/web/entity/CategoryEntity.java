@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,6 +30,12 @@ public class CategoryEntity {
     
     @OneToOne(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true)
     private FileEntity image;
+
+    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, mappedBy = "category")
+    private List<ProductEntity> products;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<CategoryAttributeEntity> categoryAttributes;
 
     public void setImage(String fileName) {
         FileEntity categoryImage = new FileEntity();

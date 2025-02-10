@@ -1,4 +1,4 @@
-package com.deye.web.listeners.events;
+package com.deye.web.listener.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

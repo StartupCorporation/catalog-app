@@ -7,16 +7,15 @@ import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 
-import static com.deye.web.utils.error.ErrorCodeUtils.MINIO_DELETE_FILE_ERROR_CODE;
-import static com.deye.web.utils.error.ErrorCodeUtils.MINIO_UPLOAD_FILE_ERROR_CODE;
-import static com.deye.web.utils.error.ErrorMessageUtils.MINIO_DELETE_FILE_ERROR_MESSAGE;
-import static com.deye.web.utils.error.ErrorMessageUtils.MINIO_UPLOAD_FILE_ERROR_MESSAGE;
+import static com.deye.web.util.error.ErrorCodeUtils.MINIO_DELETE_FILE_ERROR_CODE;
+import static com.deye.web.util.error.ErrorCodeUtils.MINIO_UPLOAD_FILE_ERROR_CODE;
+import static com.deye.web.util.error.ErrorMessageUtils.MINIO_DELETE_FILE_ERROR_MESSAGE;
+import static com.deye.web.util.error.ErrorMessageUtils.MINIO_UPLOAD_FILE_ERROR_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
