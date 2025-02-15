@@ -12,4 +12,5 @@ public class ErrorCodeUtils {
     public static final Integer EVENT_MESSAGE_NOT_PROCEED_ERROR_CODE = 6;
     public static final Integer PRODUCT_NOT_FOUND_ERROR_CODE = 7;
     public static final Integer JSON_PARSE_ERROR_CODE = 8;
+    public static final Integer ATTRIBUTE_NOT_FOUND_ERROR_CODE = 9;
 }

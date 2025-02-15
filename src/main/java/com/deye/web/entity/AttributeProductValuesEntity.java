@@ -1,6 +1,6 @@
 package com.deye.web.entity;
 
-import com.deye.web.configuration.adapter.SQLJsonConverter;
+import com.deye.web.configuration.adapter.SQLAttributeDefinitionJsonConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +27,6 @@ public class AttributeProductValuesEntity {
     private AttributeEntity attribute;
 
     @Column(columnDefinition = "json")
-    @Convert(converter = SQLJsonConverter.class)
+    @Convert(converter = SQLAttributeDefinitionJsonConverter.class)
     private Map<String, Object> value;
 }

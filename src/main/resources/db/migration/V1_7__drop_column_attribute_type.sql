@@ -1,0 +1,2 @@
+ALTER TABLE attribute
+DROP COLUMN type;

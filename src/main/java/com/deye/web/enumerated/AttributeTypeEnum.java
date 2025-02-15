@@ -2,7 +2,8 @@ package com.deye.web.enumerated;
 
 public enum AttributeTypeEnum {
     CHECKBOX,
-    SELECT,
+    STRING_SELECT,
+    NUMBER_SELECT,
     STRING,
     NUMBER,
     RANGE

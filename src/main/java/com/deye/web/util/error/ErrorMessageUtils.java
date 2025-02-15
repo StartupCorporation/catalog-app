@@ -10,4 +10,5 @@ public class ErrorMessageUtils {
     public static final String EVENT_MESSAGE_NOT_PROCEED_ERROR_MESSAGE = "Error during event message processing";
     public static final String PRODUCT_NOT_FOUND_ERROR_MESSAGE = "Product not found";
     public static final String JSON_PARSE_ERROR_MESSAGE = "JSON parse from/to db column error";
+    public static final String ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE = "Attribute not found";
 }
