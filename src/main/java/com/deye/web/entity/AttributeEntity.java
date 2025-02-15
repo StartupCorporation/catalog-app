@@ -2,7 +2,6 @@ package com.deye.web.entity;
 
 import com.deye.web.configuration.adapter.SQLAttributeDefinitionJsonConverter;
 import com.deye.web.entity.attribute.definition.AttributeDefinition;
-import com.deye.web.enumerated.AttributeTypeEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

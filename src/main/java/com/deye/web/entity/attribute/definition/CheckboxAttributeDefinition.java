@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CheckboxAttributeDefinition extends AttributeDefinition {
-    private boolean value;
 
     @Override
     public AttributeTypeEnum getAttributeType() {

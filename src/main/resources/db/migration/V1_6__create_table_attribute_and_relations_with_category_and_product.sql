@@ -3,8 +3,7 @@ CREATE TABLE ATTRIBUTE
     id          UUID PRIMARY KEY,
     name        VARCHAR(255) NOT NULL UNIQUE,
     description VARCHAR(255),
-    type        VARCHAR(255) NOT NULL,
-    metadata    JSONB        NOT NULL
+    metadata    JSONB
 );
 
 CREATE TABLE CATEGORY_ATTRIBUTE
