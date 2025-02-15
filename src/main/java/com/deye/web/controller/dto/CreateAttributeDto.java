@@ -15,7 +15,7 @@ public class CreateAttributeDto {
     private String name;
     private String description;
 
-    @NotNull(message = "Attribute metadata can't be null")
+    @NotNull(message = "Attribute definition can't be null")
     @Valid
-    private AttributeDefinition metadata;
+    private AttributeDefinition definition;
 }

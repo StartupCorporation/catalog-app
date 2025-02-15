@@ -25,7 +25,7 @@ public class AttributeEntity {
     @Column(columnDefinition = "json")
     @Convert(converter = SQLAttributeDefinitionJsonConverter.class)
     @ColumnTransformer(write = "?::jsonb")
-    private AttributeDefinition metadata;
+    private AttributeDefinition definition;
 
     @OneToMany(mappedBy = "attribute", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<CategoryAttributeEntity> attributeCategories;

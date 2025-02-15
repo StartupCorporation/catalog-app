@@ -26,13 +26,13 @@ public class AttributeService {
 
     @Transactional
     public void save(CreateAttributeDto createAttributeDto) {
-        log.info("Saving new attribute: name={}, type={}", createAttributeDto.getName(), createAttributeDto.getMetadata().getAttributeType());
+        log.info("Saving new attribute: name={}, type={}", createAttributeDto.getName(), createAttributeDto.getDefinition().getAttributeType());
 
-        AttributeDefinition attributeMetadata = createAttributeDto.getMetadata();
+        AttributeDefinition attributeDefinition = createAttributeDto.getDefinition();
         AttributeEntity attribute = new AttributeEntity();
         attribute.setName(createAttributeDto.getName());
         attribute.setDescription(createAttributeDto.getDescription());
-        attribute.setMetadata(attributeMetadata);
+        attribute.setDefinition(attributeDefinition);
 
         attributeRepository.save(attribute);
         log.info("Attribute saved successfully: id={}", attribute.getId());

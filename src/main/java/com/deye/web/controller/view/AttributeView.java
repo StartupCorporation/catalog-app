@@ -12,5 +12,5 @@ public class AttributeView {
     private UUID id;
     private String name;
     private String description;
-    private AttributeDefinition attributeDefinition;
+    private AttributeDefinition definition;
 }

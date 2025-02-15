@@ -9,7 +9,7 @@ public class AttributeMapper {
 
     public AttributeView toAttributeView(AttributeEntity attribute) {
         AttributeView attributeView = new AttributeView();
-        attributeView.setAttributeDefinition(attribute.getMetadata());
+        attributeView.setDefinition(attribute.getDefinition());
         attributeView.setName(attribute.getName());
         attributeView.setDescription(attribute.getDescription());
         attributeView.setId(attribute.getId());
