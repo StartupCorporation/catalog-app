@@ -1,11 +1,15 @@
 package com.deye.web.controller;
 
 import com.deye.web.controller.dto.CreateProductDto;
+import com.deye.web.controller.dto.ProductFilterDto;
 import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.view.ProductView;
 import com.deye.web.service.impl.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +23,11 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductView>> getAll() {
-        return ResponseEntity.ok(productService.getAll());
+    public ResponseEntity<Page<ProductView>> getAll(@RequestParam int page,
+                                                    @RequestParam int size,
+                                                    @ModelAttribute @Valid ProductFilterDto productFilterDto) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(productService.getAll(productFilterDto, pageable));
     }
 
     @GetMapping("/{id}")

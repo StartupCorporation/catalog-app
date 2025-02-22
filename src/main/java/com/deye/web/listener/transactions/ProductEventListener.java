@@ -5,7 +5,6 @@ import com.deye.web.exception.TransactionConsistencyException;
 import com.deye.web.listener.events.DeletedProductEvent;
 import com.deye.web.listener.events.SavedProductEvent;
 import com.deye.web.service.FileService;
-import com.deye.web.service.PublisherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductEventListener {
-    private final PublisherService publisherService;
     private final FileService fileService;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
@@ -41,8 +39,6 @@ public class ProductEventListener {
                     deleteProductImage(imageToRemove);
                 }
             }
-            log.info("All product {} images successfully saved to file storage. Trying to seng message to message broker", productId);
-            publisherService.onProductSaved(product);
         } catch (Exception e) {
             log.error("Transaction consistency exception, rollback it");
             throw new TransactionConsistencyException(e);
@@ -67,8 +63,6 @@ public class ProductEventListener {
             for (String imageName : event.getImageNames()) {
                 deleteProductImage(imageName);
             }
-            log.info("Product {} images deleted from file storage. Trying to seng message to message broker", productId);
-            publisherService.onProductDeleted(productId);
         } catch (Exception e) {
             log.error("Transaction consistency exception, rollback it");
             throw new TransactionConsistencyException(e);
