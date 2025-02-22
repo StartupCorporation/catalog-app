@@ -5,7 +5,6 @@ import com.deye.web.exception.TransactionConsistencyException;
 import com.deye.web.listener.events.DeletedCategoryEvent;
 import com.deye.web.listener.events.SavedCategoryEvent;
 import com.deye.web.service.FileService;
-import com.deye.web.service.PublisherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +20,6 @@ import java.util.UUID;
 @Slf4j
 public class CategoryEventListener {
     private final FileService fileService;
-    private final PublisherService publisherService;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onCategorySaved(SavedCategoryEvent savedCategoryEvent) {
@@ -38,8 +36,6 @@ public class CategoryEventListener {
                 log.info("Previous image name is {}. Deleting this from file storage", previousImageName);
                 deleteCategoryImage(previousImageName);
             }
-            log.info("Trying to push notification to message broker for category saving : {}", categoryId);
-            publisherService.onCategorySaved(savedCategoryEvent.getCategory());
         } catch (Exception e) {
             log.error("Transaction consistency exception, rollback it");
             throw new TransactionConsistencyException(e);
@@ -63,8 +59,6 @@ public class CategoryEventListener {
             log.info("Category with id: {} successfully deleted from DB. Trying to delete its image from storage", categoryId);
             String fileName = deletedCategoryEvent.getFileName();
             deleteCategoryImage(fileName);
-            log.info("Trying to push notification to message broker for category deletion : {}", categoryId);
-            publisherService.onCategoryDeleted(categoryId);
         } catch (Exception e) {
             log.error("Transaction consistency exception, rollback it");
             throw new TransactionConsistencyException(e);

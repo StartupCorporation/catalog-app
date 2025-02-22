@@ -1,6 +1,7 @@
 package com.deye.web.service.impl;
 
 import com.deye.web.controller.dto.CreateProductDto;
+import com.deye.web.controller.dto.ProductFilterDto;
 import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.view.ProductView;
 import com.deye.web.entity.CategoryEntity;
@@ -11,12 +12,15 @@ import com.deye.web.listener.events.DeletedProductEvent;
 import com.deye.web.listener.events.SavedProductEvent;
 import com.deye.web.mapper.ProductMapper;
 import com.deye.web.repository.ProductRepository;
+import com.deye.web.service.spricification.ProductFilterSpecification;
 import com.deye.web.util.error.ErrorCodeUtils;
 import com.deye.web.util.error.ErrorMessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +40,7 @@ public class ProductService {
     private final ConfigService configService;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final ProductFilterSpecification productFilterSpecification;
 
     @Transactional(rollbackFor = TransactionConsistencyException.class)
     public void save(CreateProductDto createProductDto) {
@@ -62,13 +67,11 @@ public class ProductService {
     }
 
     @Transactional
-    public List<ProductView> getAll() {
+    public Page<ProductView> getAll(ProductFilterDto productFilterDto, Pageable pageable) {
         log.info("Fetching all products");
-        List<ProductView> products = productRepository.findAll().stream()
-                .map(productMapper::toProductView)
-                .toList();
-        log.info("Found {} products", products.size());
-        return products;
+        Page<ProductEntity> products = productRepository.findAll(productFilterSpecification.filterBy(productFilterDto), pageable);
+        log.info("Found {} products", products.getTotalElements());
+        return products.map(productMapper::toProductView);
     }
 
     @Transactional
