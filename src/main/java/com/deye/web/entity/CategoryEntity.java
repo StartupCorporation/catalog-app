@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -27,19 +29,23 @@ public class CategoryEntity {
     @Column(unique = true)
     private String name;
     private String description;
-    
-    @OneToOne(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true)
+
+    @OneToOne(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.LAZY)
     private FileEntity image;
 
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, mappedBy = "category")
     private List<ProductEntity> products;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CategoryAttributeEntity> categoryAttributes;
+    private Set<CategoryAttributeEntity> categoryAttributes = new HashSet<>();
 
     public void setImage(String fileName) {
         FileEntity categoryImage = new FileEntity();
         categoryImage.setName(fileName);
         this.image = categoryImage;
+    }
+
+    public void addAttribute(CategoryAttributeEntity attribute) {
+        categoryAttributes.add(attribute);
     }
 }

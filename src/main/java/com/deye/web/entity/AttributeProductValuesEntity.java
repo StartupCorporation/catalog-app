@@ -2,6 +2,7 @@ package com.deye.web.entity;
 
 import com.deye.web.configuration.adapter.SQLAttributeDefinitionJsonConverter;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Table(name = "ATTRIBUTE_PRODUCT_VALUE")
 @Getter
 @Setter
+@EqualsAndHashCode
 public class AttributeProductValuesEntity {
 
     @Id

@@ -2,6 +2,7 @@ package com.deye.web.controller.dto;
 
 import com.deye.web.validation.annotation.ImageType;
 import com.deye.web.validation.annotation.NotEmptyModel;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -23,6 +24,8 @@ public class UpdateCategoryDto {
 
     @ImageType
     private MultipartFile image;
-    private List<UUID> attributesIdsToSave;
+
+    @Valid
+    private List<CategoryAttributeDto> attributesToSave;
     private List<UUID> attributesIdsToRemove;
 }

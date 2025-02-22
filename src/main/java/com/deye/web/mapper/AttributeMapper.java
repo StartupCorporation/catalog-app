@@ -1,6 +1,7 @@
 package com.deye.web.mapper;
 
 import com.deye.web.controller.view.AttributeView;
+import com.deye.web.controller.view.CategoryAttributeView;
 import com.deye.web.entity.AttributeEntity;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,14 @@ public class AttributeMapper {
         attributeView.setDefinition(attribute.getDefinition());
         attributeView.setName(attribute.getName());
         attributeView.setDescription(attribute.getDescription());
+        attributeView.setId(attribute.getId());
+        return attributeView;
+    }
+
+    public CategoryAttributeView toCategoryAttributeView(AttributeEntity attribute) {
+        CategoryAttributeView attributeView = new CategoryAttributeView();
+        attributeView.setDefinition(attribute.getDefinition());
+        attributeView.setName(attribute.getName());
         attributeView.setId(attribute.getId());
         return attributeView;
     }

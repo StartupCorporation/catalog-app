@@ -12,6 +12,10 @@ public class CategoryAttributeDto {
 
     @NotNull(message = "Attribute id can't be null")
     private UUID id;
-    private boolean isRequired;
-    private boolean isFilterable;
+
+    @NotNull(message = "isRequired field can't be null")
+    private Boolean isRequired;
+
+    @NotNull(message = "isFilterable field can't be null")
+    private Boolean isFilterable;
 }
