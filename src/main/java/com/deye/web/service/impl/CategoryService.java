@@ -1,14 +1,18 @@
 package com.deye.web.service.impl;
 
+import com.deye.web.controller.dto.CategoryAttributeDto;
 import com.deye.web.controller.dto.CreateCategoryDto;
 import com.deye.web.controller.dto.UpdateCategoryDto;
 import com.deye.web.controller.view.CategoryView;
+import com.deye.web.entity.AttributeEntity;
+import com.deye.web.entity.CategoryAttributeEntity;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.exception.EntityNotFoundException;
 import com.deye.web.exception.TransactionConsistencyException;
 import com.deye.web.listener.events.DeletedCategoryEvent;
 import com.deye.web.listener.events.SavedCategoryEvent;
 import com.deye.web.mapper.CategoryMapper;
+import com.deye.web.repository.AttributeRepository;
 import com.deye.web.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,7 @@ import static com.deye.web.util.error.ErrorMessageUtils.CATEGORY_NOT_FOUND_ERROR
 @Slf4j
 public class CategoryService {
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final AttributeRepository attributeRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
@@ -47,7 +52,24 @@ public class CategoryService {
         category.setName(categoryDto.getName());
         category.setDescription(categoryDto.getDescription());
         category.setImage(image.getOriginalFilename());
-        categoryRepository.saveAndFlush(category);
+        List<CategoryAttributeDto> attributes = categoryDto.getAttributes();
+        if (attributes != null && !attributes.isEmpty()) {
+            List<UUID> attributesIds = attributes.stream()
+                    .map(CategoryAttributeDto::getId)
+                    .toList();
+           /*
+            List<AttributeEntity> attributes = attributeRepository.findAllById(attributesIds);
+
+            for (AttributeEntity attribute : attributes) {
+                CategoryAttributeEntity categoryAttribute = new CategoryAttributeEntity();
+                categoryAttribute.setCategory(category);
+                categoryAttribute.setAttribute(attribute);
+                categoryAttribute.
+            }
+
+            */
+        }
+        category = categoryRepository.saveAndFlush(category);
         applicationEventPublisher.publishEvent(new SavedCategoryEvent(category, image));
     }
 

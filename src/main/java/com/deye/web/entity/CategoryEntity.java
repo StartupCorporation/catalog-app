@@ -34,7 +34,7 @@ public class CategoryEntity {
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, mappedBy = "category")
     private List<ProductEntity> products;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CategoryAttributeEntity> categoryAttributes;
 
     public void setImage(String fileName) {

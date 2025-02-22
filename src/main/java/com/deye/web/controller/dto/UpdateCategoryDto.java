@@ -7,6 +7,9 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.UUID;
+
 @Getter
 @Setter
 @NotEmptyModel
@@ -20,4 +23,6 @@ public class UpdateCategoryDto {
 
     @ImageType
     private MultipartFile image;
+    private List<UUID> attributesIdsToSave;
+    private List<UUID> attributesIdsToRemove;
 }
