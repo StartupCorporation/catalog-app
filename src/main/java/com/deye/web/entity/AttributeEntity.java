@@ -3,6 +3,7 @@ package com.deye.web.entity;
 import com.deye.web.configuration.adapter.SQLAttributeDefinitionJsonConverter;
 import com.deye.web.entity.attribute.definition.AttributeDefinition;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Table(name = "ATTRIBUTE")
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 public class AttributeEntity {
 
     @Id

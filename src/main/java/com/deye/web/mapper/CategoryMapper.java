@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CategoryMapper {
+    private final AttributeMapper attributeMapper;
     private final ConfigService configService;
 
     public CategoryView toCategoryView(CategoryEntity category) {
@@ -17,6 +18,9 @@ public class CategoryMapper {
                 .name(category.getName())
                 .description(category.getDescription())
                 .image(configService.getMinioBucketName() + "/" + category.getImage().getName())
+                .attributes(category.getCategoryAttributes().stream()
+                        .map(categoryAttributeEntity -> attributeMapper.toCategoryAttributeView(categoryAttributeEntity.getAttribute()))
+                        .toList())
                 .build();
     }
 }

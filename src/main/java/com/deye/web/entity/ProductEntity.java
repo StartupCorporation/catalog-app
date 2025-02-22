@@ -1,6 +1,7 @@
 package com.deye.web.entity;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 @Table(name = "PRODUCT")
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 public class ProductEntity {
 
     @Id
