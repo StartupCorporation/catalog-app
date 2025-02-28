@@ -2,6 +2,7 @@ package com.deye.web.controller.dto;
 
 import com.deye.web.validation.annotation.ImageType;
 import com.deye.web.validation.annotation.NotEmptyModel;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
@@ -10,6 +11,9 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -31,4 +35,8 @@ public class UpdateProductDto {
     @ImageType
     private MultipartFile[] imagesToAdd;
     private List<String> imagesToRemove;
+
+    @Valid
+    private Map<UUID, Object> attributesValuesToSave;
+    private Set<UUID> attributesIdsToRemove;
 }

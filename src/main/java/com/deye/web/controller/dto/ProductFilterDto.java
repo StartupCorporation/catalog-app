@@ -14,5 +14,5 @@ public class ProductFilterDto {
     private List<UUID> categoriesIds;
 
     @Valid
-    private PriceRangeFilterDto priceRange;
+    private RangeDto priceRange;
 }

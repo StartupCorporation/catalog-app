@@ -1,4 +1,4 @@
-package com.deye.web.configuration.adapter;
+package com.deye.web.configuration.adapter.sql;
 
 import com.deye.web.entity.attribute.definition.AttributeDefinition;
 import com.deye.web.exception.JsonException;
@@ -8,14 +8,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Converter(autoApply = true)
+@Converter
 @Component
 @Slf4j
-public class SQLAttributeDefinitionJsonConverter implements AttributeConverter<AttributeDefinition, String> {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+@RequiredArgsConstructor
+public class AttributeDefinitionAndStringConverter implements AttributeConverter<AttributeDefinition, String> {
+    private final ObjectMapper objectMapper;
 
     @Override
     public String convertToDatabaseColumn(AttributeDefinition attribute) {

@@ -1,9 +1,10 @@
-package com.deye.web.listener.transactions;
+package com.deye.web.async.listener.transactions;
 
+import com.deye.web.async.listener.events.DeletedCategoryEvent;
+import com.deye.web.async.listener.events.SavedCategoryEvent;
+import com.deye.web.async.service.PublisherService;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.exception.TransactionConsistencyException;
-import com.deye.web.listener.events.DeletedCategoryEvent;
-import com.deye.web.listener.events.SavedCategoryEvent;
 import com.deye.web.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -20,6 +22,7 @@ import java.util.UUID;
 @Slf4j
 public class CategoryEventListener {
     private final FileService fileService;
+    private final PublisherService publisherService;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onCategorySaved(SavedCategoryEvent savedCategoryEvent) {
@@ -57,8 +60,11 @@ public class CategoryEventListener {
         try {
             UUID categoryId = deletedCategoryEvent.getCategoryId();
             log.info("Category with id: {} successfully deleted from DB. Trying to delete its image from storage", categoryId);
-            String fileName = deletedCategoryEvent.getFileName();
-            deleteCategoryImage(fileName);
+            List<String> filesNamesToRemove = deletedCategoryEvent.getFilesNamesToRemove();
+            for (String fileName : filesNamesToRemove) {
+                deleteCategoryImage(fileName);
+            }
+            publisherService.onProductsDeleted(deletedCategoryEvent.getRemovedProductsIds());
         } catch (Exception e) {
             log.error("Transaction consistency exception, rollback it");
             throw new TransactionConsistencyException(e);

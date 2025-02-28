@@ -1,6 +1,7 @@
 package com.deye.web.controller.dto;
 
 import com.deye.web.validation.annotation.ImageType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -10,6 +11,8 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -38,4 +41,7 @@ public class CreateProductDto {
     @NotNull(message = "Images can't be null")
     @ImageType
     private MultipartFile[] images;
+
+    @Valid
+    private Map<UUID, Object> attributesValuesToSave;
 }

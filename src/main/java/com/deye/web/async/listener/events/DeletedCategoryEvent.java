@@ -1,9 +1,11 @@
-package com.deye.web.listener.events;
+package com.deye.web.async.listener.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -11,5 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DeletedCategoryEvent {
     private UUID categoryId;
-    private String fileName;
+    private List<String> filesNamesToRemove;
+    private Set<UUID> removedProductsIds;
 }

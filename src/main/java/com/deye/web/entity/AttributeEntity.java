@@ -1,6 +1,6 @@
 package com.deye.web.entity;
 
-import com.deye.web.configuration.adapter.SQLAttributeDefinitionJsonConverter;
+import com.deye.web.configuration.adapter.sql.AttributeDefinitionAndStringConverter;
 import com.deye.web.entity.attribute.definition.AttributeDefinition;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -25,7 +25,7 @@ public class AttributeEntity {
     private String description;
 
     @Column(columnDefinition = "json")
-    @Convert(converter = SQLAttributeDefinitionJsonConverter.class)
+    @Convert(converter = AttributeDefinitionAndStringConverter.class)
     @ColumnTransformer(write = "?::jsonb")
     private AttributeDefinition definition;
 

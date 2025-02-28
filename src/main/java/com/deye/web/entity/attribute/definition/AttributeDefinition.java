@@ -21,4 +21,17 @@ public abstract class AttributeDefinition {
 
     @JsonIgnore
     public abstract AttributeTypeEnum getAttributeType();
+
+    @JsonIgnore
+    public boolean validateAttributeValue(Object value, boolean isRequiredForCategory) {
+        if (isRequiredForCategory && value == null) {
+            return false;
+        }
+        return getJavaType().equals(value.getClass());
+    }
+
+    @JsonIgnore
+    protected Object getJavaType() {
+        return Object.class;
+    }
 }

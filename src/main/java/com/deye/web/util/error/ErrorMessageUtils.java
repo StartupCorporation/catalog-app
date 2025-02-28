@@ -11,4 +11,9 @@ public class ErrorMessageUtils {
     public static final String PRODUCT_NOT_FOUND_ERROR_MESSAGE = "Product not found";
     public static final String JSON_PARSE_ERROR_MESSAGE = "JSON parse from/to db column error";
     public static final String ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE = "Attribute not found";
+    public static final String WRONG_ATTRIBUTE_VALUES_ERROR_MESSAGE = "Attributes values are incorrect while setting them for product";
+    public static final String ATTRIBUTE_TO_DELETE_WAS_NOT_FOUND_ERROR_MESSAGE = "Attribute to delete was not found";
+    public static final String ATTRIBUTE_DELETE_ACTION_NOT_ALLOWED_ERROR_MESSAGE = "You can't remove the attribute";
+    public static final String REQUIRED_ATTRIBUTE_VALUE_NOT_PROVIDED_ERROR_MESSAGE = "Required attribute value is not provided";
+    public static final String CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE = "Category attribute not found";
 }

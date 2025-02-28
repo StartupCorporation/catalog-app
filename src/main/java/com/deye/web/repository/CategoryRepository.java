@@ -20,6 +20,23 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID> 
     Optional<CategoryEntity> findByIdWithFetchedAttributesAndImage(UUID id);
 
     @Query("select c from CategoryEntity c " +
+            "left join fetch c.categoryAttributes ca " +
+            "left join fetch ca.attribute " +
+            "where c.id = ?1")
+    Optional<CategoryEntity> findByIdWithFetchedAttributes(UUID id);
+
+    @Query("select c from CategoryEntity c " +
+            "left join fetch c.image " +
+            "left join fetch c.categoryAttributes ca " +
+            "left join fetch ca.attribute " +
+            "left join fetch c.products cp " +
+            "left join fetch cp.attributesValuesForProduct cpa " +
+            "left join fetch cpa.attribute " +
+            "left join fetch cp.images " +
+            "where c.id = ?1")
+    Optional<CategoryEntity> findByIdWithFetchedAttributesAndImagesAndProducts(UUID id);
+
+    @Query("select c from CategoryEntity c " +
             "left join fetch c.image " +
             "left join fetch c.categoryAttributes ca " +
             "left join fetch ca.attribute ")

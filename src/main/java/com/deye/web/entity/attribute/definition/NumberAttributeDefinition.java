@@ -12,4 +12,9 @@ public class NumberAttributeDefinition extends AttributeDefinition {
     public AttributeTypeEnum getAttributeType() {
         return AttributeTypeEnum.NUMBER;
     }
+
+    @Override
+    public Object getJavaType() {
+        return Number.class;
+    }
 }

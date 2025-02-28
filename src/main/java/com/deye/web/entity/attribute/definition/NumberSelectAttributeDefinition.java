@@ -14,7 +14,23 @@ public class NumberSelectAttributeDefinition extends AttributeDefinition {
 
     @NotNull(message = "Attribute values can't be null")
     @NotEmpty(message = "Please provide values")
-    private List<Integer> values;
+    private List<Number> values;
+
+    @Override
+    public boolean validateAttributeValue(Object value, boolean isRequiredForCategory) {
+        if (isRequiredForCategory && value == null) {
+            return false;
+        }
+        if (value != null && !(value instanceof Number)) {
+            return false;
+        }
+
+        if (value != null) {
+            Number numberValue = (Number) value;
+            return this.values.contains(numberValue);
+        }
+        return true;
+    }
 
     @Override
     public AttributeTypeEnum getAttributeType() {
