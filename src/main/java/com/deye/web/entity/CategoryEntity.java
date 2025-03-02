@@ -1,15 +1,16 @@
 package com.deye.web.entity;
 
+import com.deye.web.exception.EntityNotFoundException;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
+import static com.deye.web.util.error.ErrorCodeUtils.CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_CODE;
+import static com.deye.web.util.error.ErrorMessageUtils.CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE;
 
 /**
  * Category services for products domain separation and sorting.
@@ -47,5 +48,15 @@ public class CategoryEntity {
 
     public void addAttribute(CategoryAttributeEntity attribute) {
         categoryAttributes.add(attribute);
+    }
+
+    public CategoryAttributeEntity getCategoryAttribute(UUID attributeId) {
+        Optional<CategoryAttributeEntity> categoryAttributeOpt = this.getCategoryAttributes().stream()
+                .filter(categoryAttr -> categoryAttr.getAttribute().getId().equals(attributeId))
+                .findFirst();
+        if (categoryAttributeOpt.isEmpty()) {
+            throw new EntityNotFoundException(CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_CODE, CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE);
+        }
+        return categoryAttributeOpt.get();
     }
 }

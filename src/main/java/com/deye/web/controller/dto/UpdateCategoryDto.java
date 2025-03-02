@@ -24,8 +24,5 @@ public class UpdateCategoryDto {
 
     @ImageType
     private MultipartFile image;
-
-    @Valid
-    private List<CategoryAttributeDto> attributesToSave;
     private List<UUID> attributesIdsToRemove;
 }

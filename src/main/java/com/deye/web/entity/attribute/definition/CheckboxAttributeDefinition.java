@@ -12,4 +12,9 @@ public class CheckboxAttributeDefinition extends AttributeDefinition {
     public AttributeTypeEnum getAttributeType() {
         return AttributeTypeEnum.CHECKBOX;
     }
+
+    @Override
+    public Object getJavaType() {
+        return Boolean.class;
+    }
 }

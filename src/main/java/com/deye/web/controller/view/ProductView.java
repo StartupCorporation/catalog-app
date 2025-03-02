@@ -3,6 +3,7 @@ package com.deye.web.controller.view;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,4 +18,5 @@ public class ProductView {
     private UUID categoryId;
     private String categoryName;
     private Set<String> images;
+    private List<AttributeView> attributes;
 }

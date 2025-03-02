@@ -13,4 +13,8 @@ public class ErrorCodeUtils {
     public static final Integer PRODUCT_NOT_FOUND_ERROR_CODE = 7;
     public static final Integer JSON_PARSE_ERROR_CODE = 8;
     public static final Integer ATTRIBUTE_NOT_FOUND_ERROR_CODE = 9;
+    public static final Integer COMMON_ERROR_CODE = 10;
+    public static final Integer ATTRIBUTES_VALUES_ERROR_CODE = 11;
+    public static final Integer ATTRIBUTE_DELETION_ACTION_NOT_ALLOWED_ERROR_CODE = 12;
+    public static final Integer CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_CODE = 13;
 }

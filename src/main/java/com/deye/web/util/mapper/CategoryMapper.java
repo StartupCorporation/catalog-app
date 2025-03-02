@@ -1,4 +1,4 @@
-package com.deye.web.mapper;
+package com.deye.web.util.mapper;
 
 import com.deye.web.controller.view.CategoryView;
 import com.deye.web.entity.CategoryEntity;

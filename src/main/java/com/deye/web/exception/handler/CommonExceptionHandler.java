@@ -1,8 +1,6 @@
 package com.deye.web.exception.handler;
 
-import com.deye.web.exception.EntityNotFoundException;
-import com.deye.web.exception.FileStorageException;
-import com.deye.web.exception.JsonException;
+import com.deye.web.exception.*;
 import com.deye.web.exception.response.DatabaseConstraintErrorResponseDto;
 import com.deye.web.exception.response.ErrorResponseDto;
 import com.deye.web.util.error.ErrorCodeUtils;
@@ -38,6 +36,22 @@ public class CommonExceptionHandler {
         errorResponseDto.setCode(e.getCode());
         errorResponseDto.setMessage(e.getMessage());
         return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = WrongRequestBodyException.class)
+    public ResponseEntity<ErrorResponseDto> handleWrongRequestBodyException(WrongRequestBodyException e) {
+        ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+        errorResponseDto.setCode(e.getCode());
+        errorResponseDto.setMessage(e.getMessage());
+        return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = ActionNotAllowedException.class)
+    public ResponseEntity<ErrorResponseDto> handleActionNotAllowedException(ActionNotAllowedException e) {
+        ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+        errorResponseDto.setCode(e.getCode());
+        errorResponseDto.setMessage(e.getMessage());
+        return new ResponseEntity<>(errorResponseDto, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(value = EntityNotFoundException.class)

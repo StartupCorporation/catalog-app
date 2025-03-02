@@ -1,9 +1,10 @@
-package com.deye.web.listener.transactions;
+package com.deye.web.async.listener.transactions;
 
+import com.deye.web.async.listener.events.DeletedProductEvent;
+import com.deye.web.async.listener.events.SavedProductEvent;
+import com.deye.web.async.service.PublisherService;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.exception.TransactionConsistencyException;
-import com.deye.web.listener.events.DeletedProductEvent;
-import com.deye.web.listener.events.SavedProductEvent;
 import com.deye.web.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -19,6 +21,7 @@ import java.util.UUID;
 @Slf4j
 public class ProductEventListener {
     private final FileService fileService;
+    private final PublisherService publisherService;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onProductSaved(SavedProductEvent event) {
@@ -59,10 +62,11 @@ public class ProductEventListener {
     public void onProductDeleted(DeletedProductEvent event) {
         try {
             UUID productId = event.getProductId();
-            log.info("Product with id: {} successfully deleted from DB. Trying to delete its images from storage", productId);
+            log.info("Product with ids: {} successfully deleted from DB. Trying to delete its images from storage", productId);
             for (String imageName : event.getImageNames()) {
                 deleteProductImage(imageName);
             }
+            publisherService.onProductsDeleted(Set.of(productId));
         } catch (Exception e) {
             log.error("Transaction consistency exception, rollback it");
             throw new TransactionConsistencyException(e);

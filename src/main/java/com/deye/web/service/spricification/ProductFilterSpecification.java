@@ -1,6 +1,6 @@
 package com.deye.web.service.spricification;
 
-import com.deye.web.controller.dto.PriceRangeFilterDto;
+import com.deye.web.controller.dto.RangeDto;
 import com.deye.web.controller.dto.ProductFilterDto;
 import com.deye.web.entity.ProductEntity;
 import jakarta.persistence.criteria.Predicate;
@@ -23,7 +23,7 @@ public class ProductFilterSpecification {
             List<Predicate> predicates = new ArrayList<>();
             String productName = productFilterDto.getName();
             List<UUID> productCategoriesIds = productFilterDto.getCategoriesIds();
-            PriceRangeFilterDto productPriceRangeFilter = productFilterDto.getPriceRange();
+            RangeDto productPriceRangeFilter = productFilterDto.getPriceRange();
 
             if (StringUtils.isNotBlank(productName)) {
                 Predicate productNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + productName.toLowerCase() + "%");
@@ -34,7 +34,7 @@ public class ProductFilterSpecification {
                 predicates.add(productCategoriesPredicate);
             }
             if (productPriceRangeFilter != null) {
-                Predicate productPricePredicate = criteriaBuilder.between(root.get("price"), productPriceRangeFilter.getMin(), productPriceRangeFilter.getMax());
+                Predicate productPricePredicate = criteriaBuilder.between(root.get("price"), productPriceRangeFilter.getMin().doubleValue(), productPriceRangeFilter.getMax().doubleValue());
                 predicates.add(productPricePredicate);
             }
 

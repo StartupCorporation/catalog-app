@@ -1,20 +1,19 @@
 package com.deye.web.service.impl;
 
+import com.deye.web.async.listener.events.DeletedProductEvent;
+import com.deye.web.async.listener.events.SavedProductEvent;
 import com.deye.web.controller.dto.CreateProductDto;
 import com.deye.web.controller.dto.ProductFilterDto;
 import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.view.ProductView;
-import com.deye.web.entity.CategoryEntity;
-import com.deye.web.entity.ProductEntity;
+import com.deye.web.entity.*;
 import com.deye.web.exception.EntityNotFoundException;
 import com.deye.web.exception.TransactionConsistencyException;
-import com.deye.web.listener.events.DeletedProductEvent;
-import com.deye.web.listener.events.SavedProductEvent;
-import com.deye.web.mapper.ProductMapper;
 import com.deye.web.repository.ProductRepository;
 import com.deye.web.service.spricification.ProductFilterSpecification;
 import com.deye.web.util.error.ErrorCodeUtils;
 import com.deye.web.util.error.ErrorMessageUtils;
+import com.deye.web.util.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -46,9 +42,15 @@ public class ProductService {
     public void save(CreateProductDto createProductDto) {
         log.info("Starting to save product: {}", createProductDto.getName());
 
-        CategoryEntity category = categoryService.getCategoryEntityById(createProductDto.getCategoryId());
+        CategoryEntity category = categoryService.getCategoryEntityByIdWithFetchedAttributesInformationAndImagesAndProducts(createProductDto.getCategoryId());
         log.debug("Category found: {}", category.getName());
 
+        ProductEntity product = createProduct(createProductDto, category);
+        productRepository.saveAndFlush(product);
+        eventPublisher.publishEvent(new SavedProductEvent(product, createProductDto.getImages()));
+    }
+
+    private ProductEntity createProduct(CreateProductDto createProductDto, CategoryEntity category) {
         ProductEntity product = new ProductEntity();
         product.setName(createProductDto.getName());
         product.setDescription(createProductDto.getDescription());
@@ -62,8 +64,25 @@ public class ProductService {
                 .collect(Collectors.toSet());
 
         product.setImages(imagesNames);
-        productRepository.saveAndFlush(product);
-        eventPublisher.publishEvent(new SavedProductEvent(product, images));
+        Map<UUID, Object> attributesValuesToSave = createProductDto.getAttributesValuesToSave();
+        addAttributesValues(product, attributesValuesToSave);
+        return product;
+    }
+
+    private void addAttributesValues(ProductEntity product, Map<UUID, Object> attributesValuesToSave) {
+        categoryService.validateCategoryAttributesValues(product, attributesValuesToSave);
+        CategoryEntity category = product.getCategory();
+        if (attributesValuesToSave != null) {
+            for (UUID attributeId : attributesValuesToSave.keySet()) {
+                Object value = attributesValuesToSave.get(attributeId);
+                AttributeEntity attribute = category.getCategoryAttributes().stream()
+                        .map(CategoryAttributeEntity::getAttribute)
+                        .filter(attr -> attr.getId().equals(attributeId))
+                        .findAny()
+                        .get();
+                product.addAttributeValue(attribute, value);
+            }
+        }
     }
 
     @Transactional
@@ -97,6 +116,8 @@ public class ProductService {
         ProductEntity product = getProductEntityById(id);
         MultipartFile[] imagesToAdd = updateProductDto.getImagesToAdd();
         List<String> imagesNamesToRemove = updateProductDto.getImagesToRemove();
+        Map<UUID, Object> attributesValuesToSave = updateProductDto.getAttributesValuesToSave();
+        Set<UUID> attributesIdsToRemove = updateProductDto.getAttributesIdsToRemove();
         if (updateProductDto.getName() != null && !updateProductDto.getName().equals(product.getName())) {
             product.setName(updateProductDto.getName());
         }
@@ -127,13 +148,23 @@ public class ProductService {
                     .toList();
             product.removeImages(imagesNamesToRemove);
         }
+        if (attributesValuesToSave != null) {
+            addAttributesValues(product, attributesValuesToSave);
+        }
+        if (attributesIdsToRemove != null) {
+            product.getAttributesValuesForProduct().stream()
+                    .map(AttributeProductValuesEntity::getAttribute)
+                    .filter(attribute -> attributesIdsToRemove.contains(attribute.getId()))
+                    .collect(Collectors.toSet())
+                    .forEach(product::removeAttributeValue);
+        }
         productRepository.saveAndFlush(product);
         eventPublisher.publishEvent(new SavedProductEvent(product, imagesToAdd, imagesNamesToRemove));
     }
 
     private ProductEntity getProductEntityById(UUID id) {
         log.info("Searching for product in database with ID={}", id);
-        return productRepository.findById(id)
+        return productRepository.findByIdWithFetchedImagesAndCategoryAndAttributes(id)
                 .orElseThrow(() -> {
                     log.error("Product with ID={} not found!", id);
                     return new EntityNotFoundException(ErrorCodeUtils.PRODUCT_NOT_FOUND_ERROR_CODE, ErrorMessageUtils.PRODUCT_NOT_FOUND_ERROR_MESSAGE);

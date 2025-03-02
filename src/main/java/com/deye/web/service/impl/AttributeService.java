@@ -5,7 +5,7 @@ import com.deye.web.controller.view.AttributeView;
 import com.deye.web.entity.AttributeEntity;
 import com.deye.web.entity.attribute.definition.AttributeDefinition;
 import com.deye.web.exception.EntityNotFoundException;
-import com.deye.web.mapper.AttributeMapper;
+import com.deye.web.util.mapper.AttributeMapper;
 import com.deye.web.repository.AttributeRepository;
 import com.deye.web.util.error.ErrorCodeUtils;
 import com.deye.web.util.error.ErrorMessageUtils;

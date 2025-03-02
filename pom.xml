@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.example</groupId>
-    <artifactId>admin-app</artifactId>
+    <artifactId>catalog-microservice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>admin</name>
-    <description>admin application</description>
+    <name>catalog-microservice</name>
+    <description>catalog-microservice</description>
     <url/>
     <licenses>
         <license/>

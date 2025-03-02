@@ -1,9 +1,11 @@
 package com.deye.web.controller.view;
 
 import com.deye.web.entity.attribute.definition.AttributeDefinition;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -13,4 +15,7 @@ public class AttributeView {
     private String name;
     private String description;
     private AttributeDefinition definition;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Map<String, Object> value;
 }

@@ -1,4 +1,4 @@
-package com.deye.web.listener.events;
+package com.deye.web.async.listener.events;
 
 import com.deye.web.entity.CategoryEntity;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,12 @@
 package com.deye.web.exception;
 
-public class TransactionConsistencyException extends RuntimeException {
+public class TransactionConsistencyException extends CommonException {
 
-    public TransactionConsistencyException(Exception e) {
-        super(e);
+    public TransactionConsistencyException(Integer code, String message) {
+        super(code, message);
+    }
+
+    public TransactionConsistencyException(Throwable throwable) {
+        super(throwable);
     }
 }
