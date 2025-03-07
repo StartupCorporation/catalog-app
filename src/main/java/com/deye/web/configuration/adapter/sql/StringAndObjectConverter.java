@@ -8,24 +8,21 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-
-import java.util.Collections;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.Collections;
 
 @Converter
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class StringAndMapConverter implements AttributeConverter<Map<String, Object>, String> {
+public class StringAndObjectConverter implements AttributeConverter<Object, String> {
     private final ObjectMapper objectMapper;
 
     @Override
-    public String convertToDatabaseColumn(Map<String, Object> attribute) {
+    public String convertToDatabaseColumn(Object attribute) {
         try {
             return (attribute == null) ? null : objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
@@ -35,12 +32,12 @@ public class StringAndMapConverter implements AttributeConverter<Map<String, Obj
     }
 
     @Override
-    public Map<String, Object> convertToEntityAttribute(String dbData) {
+    public Object convertToEntityAttribute(String dbData) {
         try {
             if (dbData == null || dbData.trim().isEmpty()) {
                 return Collections.emptyMap();
             }
-            return objectMapper.readValue(dbData, new TypeReference<Map<String, Object>>() {
+            return objectMapper.readValue(dbData, new TypeReference<Object>() {
             });
         } catch (Exception e) {
             log.error("JSON deserialization error: {}", dbData, e);

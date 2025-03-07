@@ -1,13 +1,12 @@
 package com.deye.web.entity;
 
-import com.deye.web.configuration.adapter.sql.StringAndMapConverter;
+import com.deye.web.configuration.adapter.sql.StringAndObjectConverter;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
 
-import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -30,7 +29,7 @@ public class AttributeProductValuesEntity {
     private AttributeEntity attribute;
 
     @Column(columnDefinition = "json")
-    @Convert(converter = StringAndMapConverter.class)
+    @Convert(converter = StringAndObjectConverter.class)
     @ColumnTransformer(write = "?::jsonb")
-    private Map<String, Object> value;
+    private Object value;
 }

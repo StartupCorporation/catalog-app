@@ -17,5 +17,5 @@ public class AttributeView {
     private AttributeDefinition definition;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Map<String, Object> value;
+    private Object value;
 }

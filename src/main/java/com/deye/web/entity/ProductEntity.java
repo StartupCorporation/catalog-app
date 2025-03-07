@@ -63,7 +63,7 @@ public class ProductEntity {
         AttributeProductValuesEntity attributeProductValue = new AttributeProductValuesEntity();
         attributeProductValue.setProduct(this);
         attributeProductValue.setAttribute(attribute);
-        attributeProductValue.setValue(Map.of("value", value));
+        attributeProductValue.setValue(value);
         AttributeProductValuesEntity existedAttributeValue = attributesValuesForProduct.stream()
                 .filter(attributeValueForProduct -> attributeValueForProduct.equals(attributeProductValue))
                 .findAny()
