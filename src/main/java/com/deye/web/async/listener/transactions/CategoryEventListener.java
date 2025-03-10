@@ -76,7 +76,7 @@ public class CategoryEventListener {
             fileService.delete(fileName);
             log.info("Category image with name: {} successfully deleted from file storage", fileName);
         } catch (Exception e) {
-            log.error("Category image with name: {} deletion failed. Please try again manually.", fileName);
+            log.error("Category image with name: {} deletion failed.", fileName);
             throw e;
         }
     }

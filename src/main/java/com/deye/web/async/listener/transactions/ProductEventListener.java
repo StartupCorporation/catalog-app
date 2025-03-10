@@ -78,7 +78,7 @@ public class ProductEventListener {
             fileService.delete(fileName);
             log.info("Product image with name: {} successfully deleted from file storage", fileName);
         } catch (Exception e) {
-            log.error("Product image with name: {} deletion failed. Please try again manually.", fileName);
+            log.error("Product image with name: {} deletion failed.", fileName);
             throw e;
         }
     }

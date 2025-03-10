@@ -17,4 +17,5 @@ public class ErrorCodeUtils {
     public static final Integer ATTRIBUTES_VALUES_ERROR_CODE = 11;
     public static final Integer ATTRIBUTE_DELETION_ACTION_NOT_ALLOWED_ERROR_CODE = 12;
     public static final Integer CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_CODE = 13;
+    public static final Integer JWT_TOKEN_ERROR_CODE = 14;
 }

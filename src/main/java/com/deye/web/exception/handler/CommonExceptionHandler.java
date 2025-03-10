@@ -4,6 +4,8 @@ import com.deye.web.exception.*;
 import com.deye.web.exception.response.DatabaseConstraintErrorResponseDto;
 import com.deye.web.exception.response.ErrorResponseDto;
 import com.deye.web.util.error.ErrorCodeUtils;
+import com.deye.web.util.error.ErrorMessageUtils;
+import io.jsonwebtoken.JwtException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -84,6 +86,14 @@ public class CommonExceptionHandler {
             errorResponseDto.setMessage(ex.getMessage());
         }
 
+        return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponseDto> handleJwtException(JwtException e) {
+        ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+        errorResponseDto.setCode(ErrorCodeUtils.JWT_TOKEN_ERROR_CODE);
+        errorResponseDto.setMessage(e.getMessage());
         return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
     }
 
