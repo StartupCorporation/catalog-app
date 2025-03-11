@@ -1,11 +1,14 @@
 package com.deye.web.service.impl;
 
-import com.deye.web.async.listener.events.DeletedProductEvent;
-import com.deye.web.async.listener.events.SavedProductEvent;
+import com.deye.web.async.listener.transactions.events.DeletedProductEvent;
+import com.deye.web.async.listener.transactions.events.ReservationResultEvent;
+import com.deye.web.async.listener.transactions.events.SavedProductEvent;
+import com.deye.web.async.util.RabbitMqEvent;
 import com.deye.web.controller.dto.CreateProductDto;
 import com.deye.web.controller.dto.ProductFilterDto;
+import com.deye.web.controller.dto.ReservationDto;
 import com.deye.web.controller.dto.UpdateProductDto;
-import com.deye.web.controller.view.ProductView;
+import com.deye.web.controller.dto.response.ProductResponseDto;
 import com.deye.web.entity.*;
 import com.deye.web.exception.EntityNotFoundException;
 import com.deye.web.exception.TransactionConsistencyException;
@@ -33,7 +36,7 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ApplicationEventPublisher eventPublisher;
     private final CategoryService categoryService;
-    private final ConfigService configService;
+    private final MinioConfigService minioConfigService;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ProductFilterSpecification productFilterSpecification;
@@ -86,7 +89,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Page<ProductView> getAll(ProductFilterDto productFilterDto, Pageable pageable) {
+    public Page<ProductResponseDto> getAll(ProductFilterDto productFilterDto, Pageable pageable) {
         log.info("Fetching all products");
         Page<ProductEntity> products = productRepository.findAll(productFilterSpecification.filterBy(productFilterDto), pageable);
         log.info("Found {} products", products.getTotalElements());
@@ -94,7 +97,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductView getById(UUID id) {
+    public ProductResponseDto getById(UUID id) {
         log.info("Fetching product by ID={}", id);
         ProductEntity product = getProductEntityById(id);
         log.info("Product found: {} ({})", product.getName(), product.getId());
@@ -137,7 +140,7 @@ public class ProductService {
             product.setImages(imagesNamesToAdd);
         }
         if (imagesNamesToRemove != null) {
-            String bucketName = configService.getMinioBucketName();
+            String bucketName = minioConfigService.getMinioBucketName();
             imagesNamesToRemove = imagesNamesToRemove.stream()
                     .map(fileName -> {
                         if (StringUtils.contains(fileName, bucketName + "/")) {
@@ -169,5 +172,39 @@ public class ProductService {
                     log.error("Product with ID={} not found!", id);
                     return new EntityNotFoundException(ErrorCodeUtils.PRODUCT_NOT_FOUND_ERROR_CODE, ErrorMessageUtils.PRODUCT_NOT_FOUND_ERROR_MESSAGE);
                 });
+    }
+
+    @Transactional
+    public void reserveProducts(ReservationDto reservationDto) {
+        UUID orderId = reservationDto.getOrderId();
+        Map<UUID, Integer> productsIdsAndQuantity = reservationDto.getProductsIdsAndQuantity();
+        List<ProductEntity> products = productRepository.findAllById(productsIdsAndQuantity.keySet());
+        for (ProductEntity product : products) {
+            Integer quantityToReserve = productsIdsAndQuantity.get(product.getId());
+            Integer alreadyReservedQuantity = product.getReservedQuantity();
+            Integer quantityOnStock = product.getStockQuantity();
+            Integer totalReservationQuantity = quantityToReserve + alreadyReservedQuantity;
+            if (quantityOnStock <= totalReservationQuantity) {
+                eventPublisher.publishEvent(new ReservationResultEvent(orderId, RabbitMqEvent.FAILED_TO_RESERVE_PRODUCTS));
+                return;
+            }
+            product.setReservedQuantity(totalReservationQuantity);
+        }
+        productRepository.saveAll(products);
+        eventPublisher.publishEvent(new ReservationResultEvent(orderId, RabbitMqEvent.PRODUCTS_RESERVED_FOR_ORDER));
+    }
+
+    @Transactional
+    public void finishReservation(ReservationDto reservationDto) {
+        Map<UUID, Integer> productsIdsAndQuantity = reservationDto.getProductsIdsAndQuantity();
+        List<ProductEntity> products = productRepository.findAllById(productsIdsAndQuantity.keySet());
+        for (ProductEntity product : products) {
+            Integer orderedQuantity = productsIdsAndQuantity.get(product.getId());
+            Integer reservedQuantity = product.getReservedQuantity();
+            Integer quantityOnStock = product.getStockQuantity();
+            product.setReservedQuantity(reservedQuantity - orderedQuantity);
+            product.setStockQuantity(quantityOnStock - reservedQuantity);
+        }
+        productRepository.saveAll(products);
     }
 }

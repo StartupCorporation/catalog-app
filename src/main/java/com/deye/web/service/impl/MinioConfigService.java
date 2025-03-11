@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ConfigService {
+public class MinioConfigService {
     private final Environment env;
 
     public String getMinioBucketName() {

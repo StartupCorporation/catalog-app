@@ -1,12 +1,12 @@
 package com.deye.web.service.impl;
 
-import com.deye.web.async.listener.events.DeletedCategoryEvent;
-import com.deye.web.async.listener.events.SavedCategoryEvent;
+import com.deye.web.async.listener.transactions.events.DeletedCategoryEvent;
+import com.deye.web.async.listener.transactions.events.SavedCategoryEvent;
 import com.deye.web.controller.AttributeController;
 import com.deye.web.controller.dto.CategoryAttributeDto;
 import com.deye.web.controller.dto.CreateCategoryDto;
 import com.deye.web.controller.dto.UpdateCategoryDto;
-import com.deye.web.controller.view.CategoryView;
+import com.deye.web.controller.dto.response.CategoryResponseDto;
 import com.deye.web.entity.AttributeEntity;
 import com.deye.web.entity.CategoryAttributeEntity;
 import com.deye.web.entity.CategoryEntity;
@@ -65,7 +65,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public Set<CategoryView> getAll() {
+    public Set<CategoryResponseDto> getAll() {
         List<CategoryEntity> categories = categoryRepository.findAllWithFetchedAttributesAndImage();
         return categories.stream()
                 .map(categoryMapper::toCategoryView)
@@ -73,7 +73,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryView getById(UUID id) {
+    public CategoryResponseDto getById(UUID id) {
         log.info("Getting category by id: {}", id);
         CategoryEntity category = getCategoryEntityByIdWithFetchedAttributesInformationAndImage(id);
         log.info("Category found: {}", id);
