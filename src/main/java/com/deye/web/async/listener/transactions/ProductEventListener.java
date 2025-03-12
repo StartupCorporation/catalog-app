@@ -86,7 +86,16 @@ public class ProductEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void onReservationResult(ReservationResultEvent event) {
+    public void onSuccessfulReservationResult(ReservationResultEvent event) {
+        processReservationResult(event);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+    public void onFailedReservationResult(ReservationResultEvent event) {
+        processReservationResult(event);
+    }
+
+    private void processReservationResult(ReservationResultEvent event) {
         try {
             UUID orderId = event.getOrderId();
             RabbitMqEvent rabbitMqEvent = event.getRabbitMqEvent();

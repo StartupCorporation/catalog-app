@@ -47,7 +47,7 @@ public class CategoryService {
      *
      * @param categoryDto - category parameters
      */
-    @Transactional(rollbackFor = TransactionConsistencyException.class)
+    @Transactional
     public void create(CreateCategoryDto categoryDto) {
         MultipartFile image = categoryDto.getImage();
         log.info("Creating category: name - {}, description - {} and image - {}", categoryDto.getName(), categoryDto.getDescription(), image.getOriginalFilename());
@@ -80,7 +80,7 @@ public class CategoryService {
         return categoryMapper.toCategoryView(category);
     }
 
-    @Transactional(rollbackFor = TransactionConsistencyException.class)
+    @Transactional
     public void deleteById(UUID id) {
         log.info("Deleting category by id: {}", id);
         CategoryEntity category = getCategoryEntityByIdWithFetchedAttributesInformationAndImagesAndProducts(id);
@@ -96,7 +96,7 @@ public class CategoryService {
         applicationEventPublisher.publishEvent(new DeletedCategoryEvent(id, filesNamesToRemove, removedProductsIds));
     }
 
-    @Transactional(rollbackFor = TransactionConsistencyException.class)
+    @Transactional
     public void update(UUID id, UpdateCategoryDto categoryDto) {
         log.info("Updating category with id: {}", id);
         CategoryEntity category = getCategoryEntityByIdWithFetchedAttributesInformationAndImagesAndProducts(id);

@@ -17,7 +17,7 @@ public class CategoryMapper {
                 .id(category.getId())
                 .name(category.getName())
                 .description(category.getDescription())
-                .image(minioConfigService.getMinioBucketName() + "/" + category.getImage().getName())
+                .image(minioConfigService.getBucketName() + "/" + category.getImage().getName())
                 .attributes(category.getCategoryAttributes().stream()
                         .map(categoryAttributeEntity -> attributeMapper.toCategoryAttributeView(categoryAttributeEntity.getAttribute()))
                         .toList())

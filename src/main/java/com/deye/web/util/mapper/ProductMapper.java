@@ -20,7 +20,7 @@ public class ProductMapper {
         List<AttributeResponseDto> attributes = product.getAttributesValuesForProduct().stream()
                 .map(attributeMapper::toAttributeView)
                 .toList();
-        String bucketUrl = minioConfigService.getMinioBucketName() + "/";
+        String bucketUrl = minioConfigService.getBucketName() + "/";
         return ProductResponseDto.builder()
                 .id(product.getId())
                 .name(product.getName())
