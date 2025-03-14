@@ -1,5 +1,7 @@
 package com.deye.web.async.listener;
 
+import com.deye.web.async.message.RabbitMqMessage;
+
 public interface ListenerService {
 
     /**
@@ -10,5 +12,5 @@ public interface ListenerService {
      *
      * @param message
      */
-    void onOrderCreatedOrSubmitted(String message);
+    void onOrderEvent(RabbitMqMessage message);
 }

@@ -3,12 +3,12 @@ package com.deye.web.async.listener.impl;
 import com.deye.web.async.listener.ListenerService;
 import com.deye.web.async.message.OrderCreatedMessage;
 import com.deye.web.async.message.OrderSubmittedMessage;
+import com.deye.web.async.message.RabbitMqMessage;
 import com.deye.web.async.util.RabbitMqEvent;
 import com.deye.web.controller.dto.ReservationDto;
 import com.deye.web.exception.ActionNotAllowedException;
 import com.deye.web.exception.dlq.SkipDLQException;
 import com.deye.web.service.impl.ProductService;
-import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -26,19 +26,18 @@ import static com.deye.web.async.message.OrderSubmittedMessage.OrderSubmittedPay
 @Slf4j
 public class RabbitMqListenerService implements ListenerService {
     private final ProductService productService;
-    private final Gson gson;
 
     @Override
     @RabbitListener(queues = "${rabbitmq.reservation.queue}")
-    public void onOrderCreatedOrSubmitted(String message) {
+    public void onOrderEvent(RabbitMqMessage message) {
         try {
-            if (message.contains(RabbitMqEvent.ORDER_CREATED.name())) {
-                OrderCreatedMessage orderCreatedMessage = gson.fromJson(message, OrderCreatedMessage.class);
+            if (RabbitMqEvent.ORDER_CREATED.name().equals(message.getEvent_type())) {
+                OrderCreatedMessage orderCreatedMessage = (OrderCreatedMessage) message;
                 reserveProducts(orderCreatedMessage);
                 return;
             }
-            if (message.contains(RabbitMqEvent.ORDER_SUBMITTED_FOR_PROCESSING.name())) {
-                OrderSubmittedMessage orderSubmittedMessage = gson.fromJson(message, OrderSubmittedMessage.class);
+            if (RabbitMqEvent.ORDER_SUBMITTED_FOR_PROCESSING.name().equals(message.getEvent_type())) {
+                OrderSubmittedMessage orderSubmittedMessage = (OrderSubmittedMessage) message;
                 finishReservation(orderSubmittedMessage);
                 return;
             }
@@ -61,7 +60,7 @@ public class RabbitMqListenerService implements ListenerService {
     }
 
     private void finishReservation(OrderSubmittedMessage orderSubmittedMessage) {
-        log.info("Order is submitter. Trying to decrease the products stock quantity");
+        log.info("Order is submitted. Trying to decrease the products stock quantity");
         List<OrderSubmittedPayload> orderSubmittedPayload = orderSubmittedMessage.getData();
         ReservationDto reservationDto = new ReservationDto(orderSubmittedPayload);
         productService.finishReservation(reservationDto);
