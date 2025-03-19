@@ -8,7 +8,7 @@ import com.deye.web.async.util.RabbitMqEvent;
 import com.deye.web.controller.dto.ReservationDto;
 import com.deye.web.exception.ActionNotAllowedException;
 import com.deye.web.exception.dlq.SkipDLQException;
-import com.deye.web.service.impl.ProductService;
+import com.deye.web.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;

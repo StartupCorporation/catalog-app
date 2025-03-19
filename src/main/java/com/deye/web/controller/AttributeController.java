@@ -2,7 +2,7 @@ package com.deye.web.controller;
 
 import com.deye.web.controller.dto.CreateAttributeDto;
 import com.deye.web.controller.dto.response.AttributeResponseDto;
-import com.deye.web.service.impl.AttributeService;
+import com.deye.web.service.AttributeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

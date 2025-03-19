@@ -1,21 +1,25 @@
 package com.deye.web.async.listener.transactions.events;
 
+import com.deye.web.controller.dto.CreateImageDto;
+import com.deye.web.controller.dto.UpdateImageDto;
 import com.deye.web.entity.CategoryEntity;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class SavedCategoryEvent {
     private CategoryEntity category;
-    private MultipartFile image;
-    private String previousImageName;
+    private UpdateImageDto updateImageDto;
+    private CreateImageDto createImageDto;
 
-    public SavedCategoryEvent(CategoryEntity category, MultipartFile image) {
+    public SavedCategoryEvent(CategoryEntity category, CreateImageDto createImageDto) {
         this.category = category;
-        this.image = image;
+        this.createImageDto = createImageDto;
+    }
+
+    public SavedCategoryEvent(CategoryEntity category, UpdateImageDto updateImageDto) {
+        this.category = category;
+        this.updateImageDto = updateImageDto;
     }
 }

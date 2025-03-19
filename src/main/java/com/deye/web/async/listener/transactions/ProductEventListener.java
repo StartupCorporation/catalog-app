@@ -7,7 +7,7 @@ import com.deye.web.async.publisher.PublisherService;
 import com.deye.web.async.util.RabbitMqEvent;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.exception.TransactionConsistencyException;
-import com.deye.web.service.FileService;
+import com.deye.web.service.file.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

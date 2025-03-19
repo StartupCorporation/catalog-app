@@ -40,12 +40,6 @@ public class CategoryEntity {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CategoryAttributeEntity> categoryAttributes = new HashSet<>();
 
-    public void setImage(String fileName) {
-        FileEntity categoryImage = new FileEntity();
-        categoryImage.setName(fileName);
-        this.image = categoryImage;
-    }
-
     public void addAttribute(CategoryAttributeEntity attribute) {
         categoryAttributes.add(attribute);
     }

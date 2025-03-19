@@ -1,4 +1,4 @@
-package com.deye.web.service.impl;
+package com.deye.web.service;
 
 import com.deye.web.async.listener.transactions.events.DeletedProductEvent;
 import com.deye.web.async.listener.transactions.events.ReservationResultEvent;
@@ -10,10 +10,10 @@ import com.deye.web.controller.dto.ReservationDto;
 import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
 import com.deye.web.entity.*;
-import com.deye.web.exception.dlq.ActionNotAllowedSkipDLQException;
 import com.deye.web.exception.EntityNotFoundException;
+import com.deye.web.exception.dlq.ActionNotAllowedSkipDLQException;
 import com.deye.web.repository.ProductRepository;
-import com.deye.web.service.spricification.ProductFilterSpecification;
+import com.deye.web.repository.spricification.ProductFilterSpecification;
 import com.deye.web.util.error.ErrorCodeUtils;
 import com.deye.web.util.error.ErrorMessageUtils;
 import com.deye.web.util.mapper.ProductMapper;
@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ApplicationEventPublisher eventPublisher;
     private final CategoryService categoryService;
-    private final MinioConfigService minioConfigService;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ProductFilterSpecification productFilterSpecification;

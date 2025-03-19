@@ -16,4 +16,5 @@ public class ErrorMessageUtils {
     public static final String ATTRIBUTE_DELETE_ACTION_NOT_ALLOWED_ERROR_MESSAGE = "You can't remove the attribute";
     public static final String REQUIRED_ATTRIBUTE_VALUE_NOT_PROVIDED_ERROR_MESSAGE = "Required attribute value is not provided";
     public static final String CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE = "Category attribute not found";
+    public static final String MINIO_GET_LINK_ERROR_MESSAGE = "Error during get image link from MinIO";
 }
