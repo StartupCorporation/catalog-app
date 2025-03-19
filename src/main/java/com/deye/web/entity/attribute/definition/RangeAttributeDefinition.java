@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
 @Getter
 @Setter
+@Slf4j
 public class RangeAttributeDefinition extends AttributeDefinition {
 
     @NotNull(message = "Minimum cannot be null")
@@ -24,11 +26,20 @@ public class RangeAttributeDefinition extends AttributeDefinition {
     public boolean validateAttributeValue(Object value, boolean isRequiredForCategory) {
         if (isRequiredForCategory && value != null) {
             if (value instanceof Number) {
-                return validateNumber((Number) value);
+                boolean result = validateNumber((Number) value);
+                if (!result) {
+                    log.info("Provided value: {} is not valid for range", value);
+                }
+                return result;
             } else if (value instanceof Map<?, ?>) {
-                return validateMap((Map<?, ?>) value);
+                boolean result = validateMap((Map<?, ?>) value);
+                if (!result) {
+                    log.info("Provided value: {} is not valid for range", value);
+                }
+                return result;
             }
         }
+
         return true;
     }
 

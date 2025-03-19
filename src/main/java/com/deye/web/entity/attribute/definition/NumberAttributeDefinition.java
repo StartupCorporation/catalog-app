@@ -14,7 +14,7 @@ public class NumberAttributeDefinition extends AttributeDefinition {
     }
 
     @Override
-    public Object getJavaType() {
+    public Class getJavaType() {
         return Number.class;
     }
 }

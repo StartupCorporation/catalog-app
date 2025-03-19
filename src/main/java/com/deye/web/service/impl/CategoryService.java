@@ -183,14 +183,14 @@ public class CategoryService {
         if (attributesValues != null) {
             for (UUID attributeId : attributesValues.keySet()) {
                 CategoryAttributeEntity categoryAttribute = category.getCategoryAttribute(attributeId);
-                validateThatProvidedValueIsValid(categoryAttribute, attributesValues, attributeId);
+                validateThatProvidedValueIsValid(categoryAttribute, attributesValues.get(attributeId));
             }
         }
     }
 
-    private void validateThatProvidedValueIsValid(CategoryAttributeEntity categoryAttribute, Map<UUID, Object> attributesValues, UUID attributeId) {
+    private void validateThatProvidedValueIsValid(CategoryAttributeEntity categoryAttribute, Object attributesValue) {
         AttributeDefinition attributeDefinition = categoryAttribute.getAttribute().getDefinition();
-        boolean isValidAttributeValue = attributeDefinition.validateAttributeValue(attributesValues.get(attributeId), categoryAttribute.isRequired());
+        boolean isValidAttributeValue = attributeDefinition.validateAttributeValue(attributesValue, categoryAttribute.isRequired());
         if (!isValidAttributeValue) {
             throw new WrongRequestBodyException(ATTRIBUTES_VALUES_ERROR_CODE, WRONG_ATTRIBUTE_VALUES_ERROR_MESSAGE);
         }
