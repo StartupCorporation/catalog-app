@@ -4,7 +4,7 @@ import com.deye.web.controller.dto.CreateProductDto;
 import com.deye.web.controller.dto.ProductFilterDto;
 import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
-import com.deye.web.service.impl.ProductService;
+import com.deye.web.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

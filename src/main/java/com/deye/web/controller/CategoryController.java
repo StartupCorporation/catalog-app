@@ -3,7 +3,7 @@ package com.deye.web.controller;
 import com.deye.web.controller.dto.CreateCategoryDto;
 import com.deye.web.controller.dto.UpdateCategoryDto;
 import com.deye.web.controller.dto.response.CategoryResponseDto;
-import com.deye.web.service.impl.CategoryService;
+import com.deye.web.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

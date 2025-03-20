@@ -1,26 +1,42 @@
 package com.deye.web.util.mapper;
 
 import com.deye.web.controller.dto.response.AttributeResponseDto;
+import com.deye.web.controller.dto.response.ImageResponseDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
 import com.deye.web.entity.ProductEntity;
-import com.deye.web.service.impl.MinioConfigService;
+import com.deye.web.service.file.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 public class ProductMapper {
-    private final MinioConfigService minioConfigService;
     private final AttributeMapper attributeMapper;
+    private final FileService fileService;
 
     public ProductResponseDto toProductView(ProductEntity product) {
         List<AttributeResponseDto> attributes = product.getAttributesValuesForProduct().stream()
                 .map(attributeMapper::toAttributeView)
                 .toList();
-        String bucketUrl = minioConfigService.getBucketName() + "/";
+        Map<String, List<String>> directoriesWithFileNames = product.getDirectoriesWithFilesNames();
+        Set<ImageResponseDto> images = new HashSet<>();
+        for (String directoryName : directoriesWithFileNames.keySet()) {
+            List<String> fileNames = directoriesWithFileNames.get(directoryName);
+            for (String fileName : fileNames) {
+                ImageResponseDto imageDto = new ImageResponseDto();
+                String link = fileService.getAccessLink(directoryName, fileName);
+                UUID fileId = product.getImages().stream()
+                        .filter(image -> image.getName().equals(fileName))
+                        .findAny()
+                        .get()
+                        .getId();
+                imageDto.setLink(link);
+                imageDto.setId(fileId);
+                images.add(imageDto);
+            }
+        }
         return ProductResponseDto.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -29,7 +45,7 @@ public class ProductMapper {
                 .stockQuantity(product.getStockQuantity())
                 .categoryId(product.getCategory().getId())
                 .categoryName(product.getCategory().getName())
-                .images(product.getImagesNames().stream().map(image -> bucketUrl + image).collect(Collectors.toSet()))
+                .images(images)
                 .attributes(attributes)
                 .build();
     }

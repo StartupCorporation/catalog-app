@@ -1,4 +1,4 @@
-package com.deye.web.service.spricification;
+package com.deye.web.repository.spricification;
 
 import com.deye.web.controller.dto.RangeDto;
 import com.deye.web.controller.dto.ProductFilterDto;

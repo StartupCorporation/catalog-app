@@ -1,4 +1,4 @@
-package com.deye.web.service.impl;
+package com.deye.web.service;
 
 import com.deye.web.controller.dto.CreateAttributeDto;
 import com.deye.web.controller.dto.response.AttributeResponseDto;

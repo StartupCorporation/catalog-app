@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,33 +32,44 @@ public class ProductEntity {
     @JoinColumn(name = "CATEGORY_ID")
     private CategoryEntity category;
 
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true, mappedBy = "product")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private Set<FileEntity> images = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AttributeProductValuesEntity> attributesValuesForProduct = new HashSet<>();
     private int reservedQuantity;
 
-    public void setImages(Set<String> fileNames) {
-        for (String fileName : fileNames) {
-            FileEntity productImage = new FileEntity();
-            productImage.setName(fileName);
-            productImage.setProduct(this);
-            this.images.add(productImage);
+    public void setImages(MultipartFile[] images) {
+        for (MultipartFile image : images) {
+            FileEntity file = new FileEntity(image);
+            file.setProduct(this);
+            this.images.add(file);
         }
     }
 
-    public void removeImages(List<String> fileNames) {
-        Set<FileEntity> toRemove = images.stream()
-                .filter(image -> fileNames.contains(image.getName()))
-                .collect(Collectors.toSet());
-        images.removeAll(toRemove);
+    public Optional<FileEntity> getImageByFile(MultipartFile file) {
+        for (FileEntity fileEntity : this.images) {
+            if (fileEntity.isFileCorrespondsToEntity(file)) {
+                return Optional.of(fileEntity);
+            }
+        }
+        return Optional.empty();
     }
 
-    public Set<String> getImagesNames() {
+    public Map<String, List<String>> getDirectoriesWithFilesNames() {
         return images.stream()
-                .map(FileEntity::getName)
-                .collect(Collectors.toSet());
+                .collect(Collectors.groupingBy(FileEntity::getDirectory, Collectors.mapping(FileEntity::getName, Collectors.toList())));
+    }
+
+    public Set<FileEntity> removeImagesByIds(Collection<UUID> ids) {
+        if (this.images.size() > ids.size()) {
+            Set<FileEntity> imagesToRemove = images.stream()
+                    .filter(image -> ids.contains(image.getId()))
+                    .collect(Collectors.toSet());
+            boolean isRemoved = images.removeAll(imagesToRemove);
+            return isRemoved ? imagesToRemove : Set.of();
+        }
+        throw new ActionNotAllowedException(ErrorCodeUtils.ACTION_NOT_ALLOWED_ERROR_CODE, ErrorMessageUtils.PRODUCT_IMAGES_DELETION_NOT_ALLOWED_ERROR_MESSAGE);
     }
 
     public void addAttributeValue(AttributeEntity attribute, Object value) {
@@ -85,7 +97,7 @@ public class ProductEntity {
         }
         CategoryAttributeEntity categoryAttribute = categoryAttributeOpt.get();
         if (categoryAttribute.isRequired()) {
-            throw new ActionNotAllowedException(ErrorCodeUtils.ATTRIBUTE_DELETION_ACTION_NOT_ALLOWED_ERROR_CODE, ErrorMessageUtils.ATTRIBUTE_DELETE_ACTION_NOT_ALLOWED_ERROR_MESSAGE);
+            throw new ActionNotAllowedException(ErrorCodeUtils.ACTION_NOT_ALLOWED_ERROR_CODE, ErrorMessageUtils.ATTRIBUTE_DELETE_ACTION_NOT_ALLOWED_ERROR_MESSAGE);
         }
         AttributeProductValuesEntity attributeProductValue = attributesValuesForProduct.stream()
                 .filter(attributeProduct -> attributeProduct.getAttribute().equals(attribute))

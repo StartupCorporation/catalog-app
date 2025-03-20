@@ -5,9 +5,11 @@ import com.deye.web.async.listener.transactions.events.ReservationResultEvent;
 import com.deye.web.async.listener.transactions.events.SavedProductEvent;
 import com.deye.web.async.publisher.PublisherService;
 import com.deye.web.async.util.RabbitMqEvent;
+import com.deye.web.controller.dto.CreateImageDto;
+import com.deye.web.controller.dto.DeleteImageDto;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.exception.TransactionConsistencyException;
-import com.deye.web.service.FileService;
+import com.deye.web.service.file.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,18 +33,19 @@ public class ProductEventListener {
         try {
             ProductEntity product = event.getProduct();
             UUID productId = product.getId();
-            MultipartFile[] imagesToAdd = event.getImagesToAdd();
+            List<CreateImageDto> createImages = event.getCreateImages();
             log.info("Product with id: {} successfully saved to db", productId);
-            if (imagesToAdd != null) {
+            if (createImages != null) {
                 log.info("Adding images to db, productId: {}", productId);
-                for (MultipartFile image : imagesToAdd) {
-                    uploadNewProductImage(image, productId);
+                for (CreateImageDto createImage : createImages) {
+                    uploadNewProductImage(createImage.getImage(), createImage.getFileName(), createImage.getDirectoryName(), productId);
                 }
             }
-            if (event.getImagesToRemove() != null) {
-                for (String imageToRemove : event.getImagesToRemove()) {
-                    log.info("Removing image from the storage as it was marked as to delete: {}", imageToRemove);
-                    deleteProductImage(imageToRemove);
+            List<DeleteImageDto> deleteImages = event.getDeleteImages();
+            if (deleteImages != null) {
+                for (DeleteImageDto deleteImage : deleteImages) {
+                    log.info("Removing image from the storage as it was marked as to delete: {}", deleteImage.getName());
+                    deleteProductImage(deleteImage.getName(), deleteImage.getDirectory());
                 }
             }
         } catch (Exception e) {
@@ -50,10 +54,10 @@ public class ProductEventListener {
         }
     }
 
-    private void uploadNewProductImage(MultipartFile image, UUID productId) {
+    private void uploadNewProductImage(MultipartFile image, String fileName, String directoryName, UUID productId) {
         log.info("Saving product image to the file storage, productId: {}, fileName: {}", productId, image.getOriginalFilename());
         try {
-            fileService.upload(image);
+            fileService.upload(image, directoryName, fileName);
         } catch (Exception e) {
             log.error("Product image uploading failed. id: {}", productId);
             throw e;
@@ -64,9 +68,10 @@ public class ProductEventListener {
     public void onProductDeleted(DeletedProductEvent event) {
         try {
             UUID productId = event.getProductId();
+            List<DeleteImageDto> deleteImages = event.getDeleteImages();
             log.info("Product with ids: {} successfully deleted from DB. Trying to delete its images from storage", productId);
-            for (String imageName : event.getImageNames()) {
-                deleteProductImage(imageName);
+            for (DeleteImageDto deleteImage : deleteImages) {
+                deleteProductImage(deleteImage.getName(), deleteImage.getDirectory());
             }
             publisherService.onProductsDeleted(Set.of(productId));
         } catch (Exception e) {
@@ -75,9 +80,9 @@ public class ProductEventListener {
         }
     }
 
-    private void deleteProductImage(String fileName) {
+    private void deleteProductImage(String fileName, String directoryName) {
         try {
-            fileService.delete(fileName);
+            fileService.delete(directoryName, fileName);
             log.info("Product image with name: {} successfully deleted from file storage", fileName);
         } catch (Exception e) {
             log.error("Product image with name: {} deletion failed.", fileName);
