@@ -32,7 +32,7 @@ public class ProductEntity {
     @JoinColumn(name = "CATEGORY_ID")
     private CategoryEntity category;
 
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true, mappedBy = "product")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private Set<FileEntity> images = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -42,6 +42,7 @@ public class ProductEntity {
     public void setImages(MultipartFile[] images) {
         for (MultipartFile image : images) {
             FileEntity file = new FileEntity(image);
+            file.setProduct(this);
             this.images.add(file);
         }
     }
@@ -61,11 +62,14 @@ public class ProductEntity {
     }
 
     public Set<FileEntity> removeImagesByIds(Collection<UUID> ids) {
-        Set<FileEntity> imagesToRemove = images.stream()
-                .filter(image -> ids.contains(image.getId()))
-                .collect(Collectors.toSet());
-        boolean isRemoved = images.removeAll(imagesToRemove);
-        return isRemoved ? imagesToRemove : Set.of();
+        if (this.images.size() > ids.size()) {
+            Set<FileEntity> imagesToRemove = images.stream()
+                    .filter(image -> ids.contains(image.getId()))
+                    .collect(Collectors.toSet());
+            boolean isRemoved = images.removeAll(imagesToRemove);
+            return isRemoved ? imagesToRemove : Set.of();
+        }
+        throw new ActionNotAllowedException(ErrorCodeUtils.ACTION_NOT_ALLOWED_ERROR_CODE, ErrorMessageUtils.PRODUCT_IMAGES_DELETION_NOT_ALLOWED_ERROR_MESSAGE);
     }
 
     public void addAttributeValue(AttributeEntity attribute, Object value) {
@@ -93,7 +97,7 @@ public class ProductEntity {
         }
         CategoryAttributeEntity categoryAttribute = categoryAttributeOpt.get();
         if (categoryAttribute.isRequired()) {
-            throw new ActionNotAllowedException(ErrorCodeUtils.ATTRIBUTE_DELETION_ACTION_NOT_ALLOWED_ERROR_CODE, ErrorMessageUtils.ATTRIBUTE_DELETE_ACTION_NOT_ALLOWED_ERROR_MESSAGE);
+            throw new ActionNotAllowedException(ErrorCodeUtils.ACTION_NOT_ALLOWED_ERROR_CODE, ErrorMessageUtils.ATTRIBUTE_DELETE_ACTION_NOT_ALLOWED_ERROR_MESSAGE);
         }
         AttributeProductValuesEntity attributeProductValue = attributesValuesForProduct.stream()
                 .filter(attributeProduct -> attributeProduct.getAttribute().equals(attribute))
