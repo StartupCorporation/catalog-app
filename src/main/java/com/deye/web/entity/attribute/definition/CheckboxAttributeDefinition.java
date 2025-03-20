@@ -14,7 +14,7 @@ public class CheckboxAttributeDefinition extends AttributeDefinition {
     }
 
     @Override
-    public Object getJavaType() {
+    public Class getJavaType() {
         return Boolean.class;
     }
 }

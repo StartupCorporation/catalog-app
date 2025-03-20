@@ -39,12 +39,15 @@ public class ProductService {
 
     @Transactional
     public void save(CreateProductDto createProductDto) {
-        log.info("Starting to save product: {}", createProductDto.getName());
+        String productName = createProductDto.getName();
+        log.info("Starting to save product: {}", productName);
 
         CategoryEntity category = categoryService.getCategoryEntityByIdWithFetchedAttributesInformationAndImagesAndProducts(createProductDto.getCategoryId());
-        log.debug("Category found: {}", category.getName());
+        log.info("Category found: {}", category.getName());
 
+        log.info("Starting to set properties for product: {}", productName);
         ProductEntity product = createProduct(createProductDto, category);
+        log.info("Product: {} properties are set", product.getName());
         productRepository.saveAndFlush(product);
         List<CreateImageDto> createImages = new ArrayList<>();
         for (MultipartFile image : createProductDto.getImages()) {
@@ -69,7 +72,10 @@ public class ProductService {
     }
 
     private void addAttributesValues(ProductEntity product, Map<UUID, Object> attributesValuesToSave) {
+        String productName = product.getName();
+        log.info("Validating product: {} attributes", productName);
         categoryService.validateCategoryAttributesValues(product, attributesValuesToSave);
+        log.info("Product: {} attributes are validated successfully", productName);
         CategoryEntity category = product.getCategory();
         if (attributesValuesToSave != null) {
             for (UUID attributeId : attributesValuesToSave.keySet()) {
