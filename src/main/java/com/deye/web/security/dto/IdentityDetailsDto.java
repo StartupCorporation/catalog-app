@@ -27,6 +27,6 @@ public class IdentityDetailsDto implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.email.substring(0, this.email.indexOf("@")).toLowerCase();
     }
 }

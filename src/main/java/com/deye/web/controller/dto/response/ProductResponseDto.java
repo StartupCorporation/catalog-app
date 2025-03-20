@@ -17,6 +17,6 @@ public class ProductResponseDto {
     private Integer stockQuantity;
     private UUID categoryId;
     private String categoryName;
-    private Set<String> images;
+    private Set<ImageResponseDto> images;
     private List<AttributeResponseDto> attributes;
 }

@@ -16,6 +16,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -70,9 +71,12 @@ public class CategoryEventListener {
         try {
             UUID categoryId = deletedCategoryEvent.getCategoryId();
             log.info("Category with id: {} successfully deleted from DB. Trying to delete its image from storage", categoryId);
-            List<String> filesNamesToRemove = deletedCategoryEvent.getFilesNamesToRemove();
-            for (String fileName : filesNamesToRemove) {
-                deleteCategoryImage(fileName);
+            Map<String, List<String>> filesToRemove = deletedCategoryEvent.getFilesToRemove();
+            for (String directory : filesToRemove.keySet()) {
+                List<String> fileNamesToRemove = filesToRemove.get(directory);
+                for (String fileName : fileNamesToRemove) {
+                    deleteCategoryImage(fileName, directory);
+                }
             }
             publisherService.onProductsDeleted(deletedCategoryEvent.getRemovedProductsIds());
         } catch (Exception e) {

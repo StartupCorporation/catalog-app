@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,6 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DeletedCategoryEvent {
     private UUID categoryId;
-    private List<String> filesNamesToRemove;
+    private Map<String, List<String>> filesToRemove;
     private Set<UUID> removedProductsIds;
 }

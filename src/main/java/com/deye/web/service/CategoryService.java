@@ -2,20 +2,25 @@ package com.deye.web.service;
 
 import com.deye.web.async.listener.transactions.events.DeletedCategoryEvent;
 import com.deye.web.async.listener.transactions.events.SavedCategoryEvent;
-import com.deye.web.controller.dto.*;
+import com.deye.web.controller.dto.CategoryAttributeDto;
+import com.deye.web.controller.dto.CreateCategoryDto;
+import com.deye.web.controller.dto.UpdateCategoryDto;
+import com.deye.web.controller.dto.UpdateImageDto;
 import com.deye.web.controller.dto.response.CategoryResponseDto;
-import com.deye.web.entity.*;
+import com.deye.web.entity.AttributeEntity;
+import com.deye.web.entity.CategoryAttributeEntity;
+import com.deye.web.entity.CategoryEntity;
+import com.deye.web.entity.ProductEntity;
 import com.deye.web.entity.attribute.definition.AttributeDefinition;
 import com.deye.web.exception.EntityNotFoundException;
 import com.deye.web.exception.WrongRequestBodyException;
 import com.deye.web.repository.AttributeRepository;
 import com.deye.web.repository.CategoryRepository;
-import com.deye.web.security.dto.IdentityDetailsDto;
+import com.deye.web.util.factory.ImageDtoFactory;
 import com.deye.web.util.mapper.CategoryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,22 +51,14 @@ public class CategoryService {
         MultipartFile image = categoryDto.getImage();
         log.info("Creating category: name - {}, description - {} and image - {}", categoryDto.getName(), categoryDto.getDescription(), image.getOriginalFilename());
         CategoryEntity category = createCategory(categoryDto);
-        FileEntity file = category.getImage();
-        CreateImageDto createImageDto = new CreateImageDto(image, file.getName(), file.getDirectory());
-        applicationEventPublisher.publishEvent(new SavedCategoryEvent(category, createImageDto));
+        applicationEventPublisher.publishEvent(new SavedCategoryEvent(category, ImageDtoFactory.createImageDto(image, category.getImage())));
     }
 
     private CategoryEntity createCategory(CreateCategoryDto categoryDto) {
         CategoryEntity category = new CategoryEntity();
         category.setName(categoryDto.getName());
         category.setDescription(categoryDto.getDescription());
-
-        IdentityDetailsDto identityDetailsDto = (IdentityDetailsDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        FileEntity file = new FileEntity();
-        file.setName(categoryDto.getImage().getOriginalFilename());
-        file.setDirectory("identity-" + identityDetailsDto.getUsername() + "-directory");
-
-        category.setImage(file);
+        category.setImage(categoryDto.getImage());
         addAttributesToCategory(category, categoryDto.getAttributes());
         return categoryRepository.saveAndFlush(category);
     }
@@ -87,15 +84,11 @@ public class CategoryService {
         log.info("Deleting category by id: {}", id);
         CategoryEntity category = getCategoryEntityByIdWithFetchedAttributesInformationAndImagesAndProducts(id);
         log.info("Category with id: {} found", id);
-        List<String> filesNamesToRemove = new ArrayList<>();
-        filesNamesToRemove.add(category.getImage().getName());
-        category.getProducts()
-                .forEach(product -> filesNamesToRemove.addAll(product.getImagesNames()));
         Set<UUID> removedProductsIds = category.getProducts().stream()
                 .map(ProductEntity::getId)
                 .collect(Collectors.toSet());
         categoryRepository.delete(category);
-        applicationEventPublisher.publishEvent(new DeletedCategoryEvent(id, filesNamesToRemove, removedProductsIds));
+        applicationEventPublisher.publishEvent(new DeletedCategoryEvent(id, category.getDirectoriesWithFilesNames(), removedProductsIds));
     }
 
     @Transactional
@@ -114,11 +107,9 @@ public class CategoryService {
         String previousImageName = "";
         UpdateImageDto updateImageDto = null;
         if (newImage != null) {
-            FileEntity file = category.getImage();
-            previousImageName = file.getName();
-            file.setName(newImage.getOriginalFilename());
-            category.setImage(file);
-            updateImageDto = new UpdateImageDto(newImage, previousImageName, file.getDirectory());
+            previousImageName = category.getImageName();
+            category.updateImageName(newImage.getOriginalFilename());
+            updateImageDto = new UpdateImageDto(newImage, previousImageName, category.getImageDirectory());
             log.info("Category new image is set");
         }
         List<UUID> attributesIdsToRemove = categoryDto.getAttributesIdsToRemove();

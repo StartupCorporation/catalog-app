@@ -34,7 +34,7 @@ public class UpdateProductDto {
 
     @ImageType
     private MultipartFile[] imagesToAdd;
-    private List<String> imagesToRemove;
+    private List<UUID> imagesIdsToRemove;
 
     @Valid
     private Map<UUID, Object> attributesValuesToSave;

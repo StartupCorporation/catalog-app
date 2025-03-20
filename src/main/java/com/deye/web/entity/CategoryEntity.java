@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -52,5 +53,42 @@ public class CategoryEntity {
             throw new EntityNotFoundException(CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_CODE, CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE);
         }
         return categoryAttributeOpt.get();
+    }
+
+    public Map<String, List<String>> getDirectoriesWithFilesNames() {
+        Map<String, List<String>> filesToRemove = new HashMap<>();
+        for (ProductEntity product : this.products) {
+            filesToRemove.putAll(product.getDirectoriesWithFilesNames());
+        }
+        String categoryFileName = this.image.getName();
+        String categoryFileDirectory = this.image.getDirectory();
+        List<String> filesNames = filesToRemove.get(categoryFileDirectory);
+        if (filesNames == null) {
+            filesToRemove.put(categoryFileDirectory, List.of(categoryFileName));
+        } else {
+            filesNames.add(categoryFileName);
+            filesToRemove.put(categoryFileDirectory, filesNames);
+        }
+        return filesToRemove;
+    }
+
+    public void setImage(MultipartFile file) {
+        this.image = new FileEntity(file);
+    }
+
+    public void updateImageName(String newFileName) {
+        this.image.setName(newFileName);
+    }
+
+    public String getImageName() {
+        return this.image.getName();
+    }
+
+    public String getImageDirectory() {
+        return this.image.getDirectory();
+    }
+
+    public UUID getImageId() {
+        return this.image.getId();
     }
 }

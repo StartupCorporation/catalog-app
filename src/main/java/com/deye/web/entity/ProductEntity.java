@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,26 +39,33 @@ public class ProductEntity {
     private Set<AttributeProductValuesEntity> attributesValuesForProduct = new HashSet<>();
     private int reservedQuantity;
 
-    public void setImages(Set<String> fileNames) {
-        for (String fileName : fileNames) {
-            FileEntity productImage = new FileEntity();
-            productImage.setName(fileName);
-            productImage.setProduct(this);
-            this.images.add(productImage);
+    public void setImages(MultipartFile[] images) {
+        for (MultipartFile image : images) {
+            FileEntity file = new FileEntity(image);
+            this.images.add(file);
         }
     }
 
-    public void removeImages(List<String> fileNames) {
-        Set<FileEntity> toRemove = images.stream()
-                .filter(image -> fileNames.contains(image.getName()))
-                .collect(Collectors.toSet());
-        images.removeAll(toRemove);
+    public Optional<FileEntity> getImageByFile(MultipartFile file) {
+        for (FileEntity fileEntity : this.images) {
+            if (fileEntity.isFileCorrespondsToEntity(file)) {
+                return Optional.of(fileEntity);
+            }
+        }
+        return Optional.empty();
     }
 
-    public Set<String> getImagesNames() {
+    public Map<String, List<String>> getDirectoriesWithFilesNames() {
         return images.stream()
-                .map(FileEntity::getName)
+                .collect(Collectors.groupingBy(FileEntity::getDirectory, Collectors.mapping(FileEntity::getName, Collectors.toList())));
+    }
+
+    public Set<FileEntity> removeImagesByIds(Collection<UUID> ids) {
+        Set<FileEntity> imagesToRemove = images.stream()
+                .filter(image -> ids.contains(image.getId()))
                 .collect(Collectors.toSet());
+        boolean isRemoved = images.removeAll(imagesToRemove);
+        return isRemoved ? imagesToRemove : Set.of();
     }
 
     public void addAttributeValue(AttributeEntity attribute, Object value) {

@@ -4,10 +4,7 @@ import com.deye.web.async.listener.transactions.events.DeletedProductEvent;
 import com.deye.web.async.listener.transactions.events.ReservationResultEvent;
 import com.deye.web.async.listener.transactions.events.SavedProductEvent;
 import com.deye.web.async.util.RabbitMqEvent;
-import com.deye.web.controller.dto.CreateProductDto;
-import com.deye.web.controller.dto.ProductFilterDto;
-import com.deye.web.controller.dto.ReservationDto;
-import com.deye.web.controller.dto.UpdateProductDto;
+import com.deye.web.controller.dto.*;
 import com.deye.web.controller.dto.response.ProductResponseDto;
 import com.deye.web.entity.*;
 import com.deye.web.exception.EntityNotFoundException;
@@ -16,10 +13,10 @@ import com.deye.web.repository.ProductRepository;
 import com.deye.web.repository.spricification.ProductFilterSpecification;
 import com.deye.web.util.error.ErrorCodeUtils;
 import com.deye.web.util.error.ErrorMessageUtils;
+import com.deye.web.util.factory.ImageDtoFactory;
 import com.deye.web.util.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +46,12 @@ public class ProductService {
 
         ProductEntity product = createProduct(createProductDto, category);
         productRepository.saveAndFlush(product);
-        eventPublisher.publishEvent(new SavedProductEvent(product, createProductDto.getImages()));
+        List<CreateImageDto> createImages = new ArrayList<>();
+        for (MultipartFile image : createProductDto.getImages()) {
+            FileEntity file = product.getImageByFile(image).get();
+            createImages.add(ImageDtoFactory.createImageDto(image, file));
+        }
+        eventPublisher.publishEvent(new SavedProductEvent(product, createImages, null));
     }
 
     private ProductEntity createProduct(CreateProductDto createProductDto, CategoryEntity category) {
@@ -59,13 +61,8 @@ public class ProductService {
         product.setPrice(createProductDto.getPrice());
         product.setStockQuantity(createProductDto.getStockQuantity());
         product.setCategory(category);
+        product.setImages(createProductDto.getImages());
 
-        MultipartFile[] images = createProductDto.getImages();
-        Set<String> imagesNames = Arrays.stream(images)
-                .map(MultipartFile::getOriginalFilename)
-                .collect(Collectors.toSet());
-
-        product.setImages(imagesNames);
         Map<UUID, Object> attributesValuesToSave = createProductDto.getAttributesValuesToSave();
         addAttributesValues(product, attributesValuesToSave);
         return product;
@@ -109,7 +106,8 @@ public class ProductService {
         ProductEntity product = getProductEntityById(id);
         log.info("Product found: {}", product.getId());
         productRepository.delete(product);
-        eventPublisher.publishEvent(new DeletedProductEvent(id, product.getImagesNames()));
+        List<DeleteImageDto> deleteImages = ImageDtoFactory.deleteImageDtoList(product);
+        eventPublisher.publishEvent(new DeletedProductEvent(id, deleteImages));
     }
 
     @Transactional
@@ -117,7 +115,7 @@ public class ProductService {
         log.info("Updating product by ID={}", id);
         ProductEntity product = getProductEntityById(id);
         MultipartFile[] imagesToAdd = updateProductDto.getImagesToAdd();
-        List<String> imagesNamesToRemove = updateProductDto.getImagesToRemove();
+        List<UUID> imagesIdsToRemove = updateProductDto.getImagesIdsToRemove();
         Map<UUID, Object> attributesValuesToSave = updateProductDto.getAttributesValuesToSave();
         Set<UUID> attributesIdsToRemove = updateProductDto.getAttributesIdsToRemove();
         if (updateProductDto.getName() != null && !updateProductDto.getName().equals(product.getName())) {
@@ -133,22 +131,11 @@ public class ProductService {
             product.setStockQuantity(updateProductDto.getStockQuantity());
         }
         if (imagesToAdd != null) {
-            Set<String> imagesNamesToAdd = Arrays.stream(imagesToAdd)
-                    .map(MultipartFile::getOriginalFilename)
-                    .collect(Collectors.toSet());
-            product.setImages(imagesNamesToAdd);
+            product.setImages(imagesToAdd);
         }
-        if (imagesNamesToRemove != null) {
-            String bucketName = minioConfigService.getBucketName();
-            imagesNamesToRemove = imagesNamesToRemove.stream()
-                    .map(fileName -> {
-                        if (StringUtils.contains(fileName, bucketName + "/")) {
-                            fileName = StringUtils.substringAfter(fileName, bucketName + "/");
-                        }
-                        return fileName;
-                    })
-                    .toList();
-            product.removeImages(imagesNamesToRemove);
+        Set<FileEntity> removedImages = Set.of();
+        if (imagesIdsToRemove != null) {
+            removedImages = product.removeImagesByIds(imagesIdsToRemove);
         }
         if (attributesValuesToSave != null) {
             addAttributesValues(product, attributesValuesToSave);
@@ -161,7 +148,7 @@ public class ProductService {
                     .forEach(product::removeAttributeValue);
         }
         productRepository.saveAndFlush(product);
-        eventPublisher.publishEvent(new SavedProductEvent(product, imagesToAdd, imagesNamesToRemove));
+        eventPublisher.publishEvent(new SavedProductEvent(product, ImageDtoFactory.createImageDtos(product, imagesToAdd), ImageDtoFactory.deleteImageDtoList(removedImages)));
     }
 
     private ProductEntity getProductEntityById(UUID id) {
