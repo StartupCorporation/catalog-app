@@ -8,12 +8,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class IdentityDetailsDto implements UserDetails {
-    private String email;
+    private String id;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -27,6 +28,6 @@ public class IdentityDetailsDto implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email.substring(0, this.email.indexOf("@")).toLowerCase();
+        return id;
     }
 }

@@ -45,6 +45,6 @@ public class FileEntity {
 
     private String generateFileDirectoryName() {
         IdentityDetailsDto identityDetailsDto = (IdentityDetailsDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return "identity-" + identityDetailsDto.getUsername() + "-directory";
+        return "identity-" + identityDetailsDto.getId() + "-directory";
     }
 }
