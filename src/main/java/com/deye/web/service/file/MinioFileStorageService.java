@@ -16,7 +16,7 @@ import static com.deye.web.util.error.ErrorMessageUtils.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MinioFileService implements FileService {
+public class MinioFileStorageService implements FileStorageService {
     private final MinioClient minioClient;
 
     @Override

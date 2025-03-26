@@ -4,7 +4,8 @@ import com.deye.web.controller.dto.response.AttributeResponseDto;
 import com.deye.web.controller.dto.response.ImageResponseDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
 import com.deye.web.entity.ProductEntity;
-import com.deye.web.service.file.FileService;
+import com.deye.web.service.FileService;
+import com.deye.web.service.file.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,18 +16,19 @@ import java.util.*;
 public class ProductMapper {
     private final AttributeMapper attributeMapper;
     private final FileService fileService;
+    private final FileStorageService fileStorageService;
 
-    public ProductResponseDto toProductView(ProductEntity product) {
+    public ProductResponseDto toProductResponseDto(ProductEntity product) {
         List<AttributeResponseDto> attributes = product.getAttributesValuesForProduct().stream()
                 .map(attributeMapper::toAttributeView)
                 .toList();
-        Map<String, List<String>> directoriesWithFileNames = product.getDirectoriesWithFilesNames();
+        Map<String, List<String>> directoriesWithFileNames = fileService.getDirectoriesWithFilesNames(product.getImages());
         Set<ImageResponseDto> images = new HashSet<>();
         for (String directoryName : directoriesWithFileNames.keySet()) {
             List<String> fileNames = directoriesWithFileNames.get(directoryName);
             for (String fileName : fileNames) {
                 ImageResponseDto imageDto = new ImageResponseDto();
-                String link = fileService.getAccessLink(directoryName, fileName);
+                String link = fileStorageService.getAccessLink(directoryName, fileName);
                 UUID fileId = product.getImages().stream()
                         .filter(image -> image.getName().equals(fileName))
                         .findAny()

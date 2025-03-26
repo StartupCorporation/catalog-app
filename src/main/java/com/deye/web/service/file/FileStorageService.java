@@ -2,7 +2,7 @@ package com.deye.web.service.file;
 
 import org.springframework.web.multipart.MultipartFile;
 
-public interface FileService {
+public interface FileStorageService {
 
     void upload(MultipartFile file, String directory, String fileName);
 

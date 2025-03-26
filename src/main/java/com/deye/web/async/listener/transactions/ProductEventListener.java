@@ -9,7 +9,7 @@ import com.deye.web.controller.dto.CreateImageDto;
 import com.deye.web.controller.dto.DeleteImageDto;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.exception.TransactionConsistencyException;
-import com.deye.web.service.file.FileService;
+import com.deye.web.service.file.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductEventListener {
-    private final FileService fileService;
+    private final FileStorageService fileService;
     private final PublisherService publisherService;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
