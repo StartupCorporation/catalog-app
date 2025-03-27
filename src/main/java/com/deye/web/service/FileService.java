@@ -7,6 +7,7 @@ import com.deye.web.security.dto.IdentityDetailsDto;
 import com.deye.web.util.error.ErrorCodeUtils;
 import com.deye.web.util.error.ErrorMessageUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FileService {
+
+    @Value("${minio.bucket.name}")
+    private String bucketName;
 
     public FileEntity createFileEntity(MultipartFile file) {
         String name = extractFileNameFromFile(file);
@@ -29,8 +33,7 @@ public class FileService {
     }
 
     private String generateFileDirectoryName() {
-        IdentityDetailsDto identityDetailsDto = (IdentityDetailsDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return "identity-" + identityDetailsDto.getId() + "-directory";
+        return bucketName;
     }
 
     public Map<String, List<String>> getDirectoriesWithFilesNames(Collection<FileEntity> filesEntities) {
