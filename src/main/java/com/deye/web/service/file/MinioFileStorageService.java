@@ -2,16 +2,15 @@ package com.deye.web.service.file;
 
 import com.deye.web.exception.FileStorageException;
 import io.minio.*;
-import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.concurrent.TimeUnit;
-
-import static com.deye.web.util.error.ErrorCodeUtils.*;
-import static com.deye.web.util.error.ErrorMessageUtils.*;
+import static com.deye.web.util.error.ErrorCodeUtils.MINIO_DELETE_FILE_ERROR_CODE;
+import static com.deye.web.util.error.ErrorCodeUtils.MINIO_UPLOAD_FILE_ERROR_CODE;
+import static com.deye.web.util.error.ErrorMessageUtils.MINIO_DELETE_FILE_ERROR_MESSAGE;
+import static com.deye.web.util.error.ErrorMessageUtils.MINIO_UPLOAD_FILE_ERROR_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +51,6 @@ public class MinioFileStorageService implements FileStorageService {
                     .build();
             minioClient.removeObject(removeObjectArgs);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
             log.error("Error occurred while uploading image file", e);
             throw new FileStorageException(MINIO_DELETE_FILE_ERROR_CODE, MINIO_DELETE_FILE_ERROR_MESSAGE);
         }
@@ -60,17 +58,6 @@ public class MinioFileStorageService implements FileStorageService {
 
     @Override
     public String getAccessLink(String directory, String fileName) {
-        try {
-            GetPresignedObjectUrlArgs getPresignedObjectUrlArgs = GetPresignedObjectUrlArgs.builder()
-                    .bucket(directory)
-                    .object(fileName)
-                    .method(Method.GET)
-                    .expiry(3, TimeUnit.MINUTES)
-                    .build();
-            return minioClient.getPresignedObjectUrl(getPresignedObjectUrlArgs);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new FileStorageException(MINIO_GET_LINK_ERROR_CODE, MINIO_GET_LINK_ERROR_MESSAGE);
-        }
+        return directory + "/" + fileName;
     }
 }
