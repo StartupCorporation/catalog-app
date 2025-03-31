@@ -40,6 +40,11 @@ public class RangeAttributeDefinition extends AttributeDefinition {
             }
         }
 
+        if (isRequiredForCategory && value == null) {
+            log.info("Attribute is not valid, because it is required for specified category and the value was not provided");
+            return false;
+        }
+
         return true;
     }
 

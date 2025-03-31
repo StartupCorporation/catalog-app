@@ -30,6 +30,9 @@ public abstract class AttributeDefinition {
             log.info("Attribute  is not valid, because it is required for specified category and the value was not provided");
             return false;
         }
+        if (!isRequiredForCategory && value == null) {
+            return true;
+        }
         boolean isValidType = getJavaType().isInstance(value);
         if (!isValidType) {
             log.info("Attribute : is not valid, because it is not a valid type of attribute");

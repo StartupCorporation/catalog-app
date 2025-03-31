@@ -6,6 +6,7 @@ import com.deye.web.entity.CategoryAttributeEntity;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.entity.attribute.definition.AttributeDefinition;
+import com.deye.web.exception.ActionNotAllowedException;
 import com.deye.web.exception.EntityNotFoundException;
 import com.deye.web.exception.WrongRequestBodyException;
 import com.deye.web.repository.AttributeRepository;
@@ -26,16 +27,23 @@ public class CategoryAttributeService {
     private final AttributeRepository attributeRepository;
 
     public CategoryAttributeEntity getCategoryAttribute(CategoryEntity category, UUID attributeId) {
-        Optional<CategoryAttributeEntity> categoryAttributeOpt = category.getCategoryAttributes().stream()
-                .filter(categoryAttr -> categoryAttr.getAttribute().getId().equals(attributeId))
-                .findFirst();
-        if (categoryAttributeOpt.isEmpty()) {
-            throw new EntityNotFoundException(CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_CODE, CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE);
+        if (category != null && attributeId != null) {
+            Optional<CategoryAttributeEntity> categoryAttributeOpt = category.getCategoryAttributes().stream()
+                    .filter(categoryAttr -> categoryAttr.getAttribute().getId().equals(attributeId))
+                    .findFirst();
+            if (categoryAttributeOpt.isEmpty()) {
+                throw new EntityNotFoundException(CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_CODE, CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_MESSAGE);
+            }
+            return categoryAttributeOpt.get();
         }
-        return categoryAttributeOpt.get();
+        throw new ActionNotAllowedException("Category or attribute id is null when looking up category attribute");
     }
 
     public void addAttributesToCategory(CategoryEntity category, List<CategoryAttributeDto> attributesDto) {
+        if (category == null) {
+            throw new ActionNotAllowedException("Category is null when adding attributes to the category");
+        }
+
         log.info("Adding attributes to category: {}", category.getName());
         if (attributesDto != null && !attributesDto.isEmpty()) {
             List<UUID> attributesIds = attributesDto.stream()
