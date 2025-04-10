@@ -29,7 +29,11 @@ public class FileService {
     }
 
     public String extractFileNameFromFile(MultipartFile file) {
-        return file.getOriginalFilename();
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || fileName.isEmpty()) {
+            throw new ActionNotAllowedException("File name is empty");
+        }
+        return fileName;
     }
 
     private String generateFileDirectoryName() {

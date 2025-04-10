@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class AttributeServiceTest {
     @InjectMocks
     private AttributeService attributeService;
 
-    @Mock
+    @Spy
     private AttributeMapper attributeMapper;
 
     @Mock
@@ -56,7 +57,6 @@ public class AttributeServiceTest {
 
     @Test
     public void shouldGetAllAttributes() {
-        when(attributeMapper.toAttributeView(any(AttributeEntity.class))).thenCallRealMethod();
         when(attributeRepository.findAll()).thenReturn(List.of(attributeEntity));
         List<AttributeResponseDto> attributes = attributeService.getAll();
 
@@ -68,7 +68,6 @@ public class AttributeServiceTest {
     @Test
     public void shouldGetAttributeByIdWhenAttributeExistsInRepository() {
         UUID attributeId = UUID.randomUUID();
-        when(attributeMapper.toAttributeView(any(AttributeEntity.class))).thenCallRealMethod();
         when(attributeRepository.findById(attributeId)).thenReturn(Optional.of(attributeEntity));
 
         AttributeResponseDto attributeResponseDto = attributeService.getById(attributeId);
@@ -80,7 +79,6 @@ public class AttributeServiceTest {
     @Test
     public void shouldThrowEntityNotFoundExceptionWhenAttributeNotFoundInRepositoryDuringSearchById() {
         UUID attributeId = UUID.randomUUID();
-        when(attributeMapper.toAttributeView(any(AttributeEntity.class))).thenCallRealMethod();
         when(attributeRepository.findById(attributeId)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> attributeService.getById(attributeId));

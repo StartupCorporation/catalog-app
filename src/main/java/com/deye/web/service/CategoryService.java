@@ -9,9 +9,7 @@ import com.deye.web.controller.dto.UpdateImageDto;
 import com.deye.web.controller.dto.response.CategoryResponseDto;
 import com.deye.web.entity.*;
 import com.deye.web.exception.EntityNotFoundException;
-import com.deye.web.repository.AttributeRepository;
 import com.deye.web.repository.CategoryRepository;
-import com.deye.web.util.mapper.ImageMapper;
 import com.deye.web.util.mapper.CategoryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,18 +18,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.deye.web.util.error.ErrorCodeUtils.CATEGORY_NOT_FOUND_ERROR_CODE;
-import static com.deye.web.util.error.ErrorMessageUtils.*;
+import static com.deye.web.util.error.ErrorMessageUtils.CATEGORY_NOT_FOUND_ERROR_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CategoryService {
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final AttributeRepository attributeRepository;
     private final CategoryAttributeService categoryAttributeService;
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
@@ -99,7 +99,7 @@ public class CategoryService {
             category.setName(categoryDto.getName());
             log.info("Category new name is set");
         }
-        if (categoryDto.getDescription() != null && categoryDto.getDescription().equals(category.getName())) {
+        if (categoryDto.getDescription() != null && !categoryDto.getDescription().equals(category.getDescription())) {
             category.setDescription(categoryDto.getDescription());
             log.info("Category new description is set");
         }
@@ -123,8 +123,10 @@ public class CategoryService {
                     .collect(Collectors.toSet());
             categoryAttributesToRemove.forEach(category.getCategoryAttributes()::remove);
             for (AttributeEntity attributeEntity : attributesToRemoveFromProducts) {
-                category.getProducts()
-                        .forEach(product -> productAttributeService.removeAttributeValue(product, attributeEntity));
+                if (category.getProducts() != null) {
+                    category.getProducts()
+                            .forEach(product -> productAttributeService.removeAttributeValue(product, attributeEntity));
+                }
             }
         }
         categoryRepository.saveAndFlush(category);
