@@ -3,12 +3,10 @@ package com.deye.web.service;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.entity.FileEntity;
 import com.deye.web.exception.ActionNotAllowedException;
-import com.deye.web.security.dto.IdentityDetailsDto;
 import com.deye.web.util.error.ErrorCodeUtils;
 import com.deye.web.util.error.ErrorMessageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,9 +53,15 @@ public class FileService {
     }
 
     public Set<FileEntity> getAllFilesByCategory(CategoryEntity category) {
-        Set<FileEntity> allFilesRelatedToCategory = category.getProducts().stream()
-                .flatMap(product -> product.getImages().stream())
-                .collect(Collectors.toSet());
+        if (category == null) {
+            throw new ActionNotAllowedException("Cannot get all files of category because category is null");
+        }
+        Set<FileEntity> allFilesRelatedToCategory = new HashSet<>();
+        if (category.getProducts() != null) {
+            allFilesRelatedToCategory = category.getProducts().stream()
+                    .flatMap(product -> product.getImages().stream())
+                    .collect(Collectors.toSet());
+        }
         allFilesRelatedToCategory.add(category.getImage());
         return allFilesRelatedToCategory;
     }
