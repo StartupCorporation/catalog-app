@@ -1,7 +1,9 @@
 package com.deye.web.service;
 
+import com.deye.web.controller.dto.FileDto;
 import com.deye.web.entity.CategoryEntity;
 import com.deye.web.entity.FileEntity;
+import com.deye.web.entity.ProductEntity;
 import com.deye.web.exception.ActionNotAllowedException;
 import com.deye.web.util.error.ErrorCodeUtils;
 import com.deye.web.util.error.ErrorMessageUtils;
@@ -20,10 +22,47 @@ public class FileService {
     @Value("${minio.bucket.name}")
     private String bucketName;
 
+    public FileEntity createFileEntity(FileDto fileDto, ProductEntity product) {
+        String name = extractFileNameFromFile(fileDto.getFile());
+        String directory = generateFileDirectoryName();
+        Integer order = fileDto.getOrder();
+        validateFileOrder(order, product);
+        return new FileEntity(name, directory, order, product);
+    }
+
+    private void validateFileOrder(Integer expectedOrder, ProductEntity product) {
+        if (expectedOrder == null) {
+            throw new ActionNotAllowedException("Please select a valid file order");
+        }
+        if (product == null) {
+            throw new ActionNotAllowedException("Please select a valid product to create file");
+        }
+        Set<FileEntity> images = product.getImages().stream()
+                .sorted(Comparator.comparing(FileEntity::getOrder))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (images.isEmpty()) {
+            if (expectedOrder != 1) {
+                throw new ActionNotAllowedException("You provided wrong image order. Product does not have any images, so correct order is 1");
+            }
+        }
+        // get first skipped order to compare with expected order
+        int orderCounter = 1;
+        for (FileEntity image : images) {
+            if (image.getOrder() != orderCounter) {
+                break;
+            }
+            orderCounter++;
+        }
+        if (expectedOrder != orderCounter) {
+            throw new ActionNotAllowedException("You entered wrong order. Correct order is " + orderCounter);
+        }
+    }
+
     public FileEntity createFileEntity(MultipartFile file) {
         String name = extractFileNameFromFile(file);
         String directory = generateFileDirectoryName();
-        return new FileEntity(name, directory);
+        Integer order = 1;
+        return new FileEntity(name, directory, order);
     }
 
     public String extractFileNameFromFile(MultipartFile file) {

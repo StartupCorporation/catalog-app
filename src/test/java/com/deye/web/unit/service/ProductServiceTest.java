@@ -100,7 +100,12 @@ public class ProductServiceTest {
         createProductDto.setCategoryId(UUID.randomUUID());
         MultipartFile[] images = new MultipartFile[1];
         images[0] = Mockito.mock(MultipartFile.class);
-        createProductDto.setImages(images);
+        FileDto fileDto = new FileDto();
+        fileDto.setFile(images[0]);
+        fileDto.setOrder(1);
+        List<FileDto> fileDtoList = new ArrayList<>();
+        fileDtoList.add(fileDto);
+        createProductDto.setImages(fileDtoList);
         createProductDto.setAttributesValuesToSave(new HashMap<>());
 
         CategoryEntity categoryEntity = new CategoryEntity();
@@ -110,7 +115,7 @@ public class ProductServiceTest {
         when(categoryService.getCategoryEntityByIdWithFetchedAttributesInformationAndImagesAndProducts(any(UUID.class)))
                 .thenReturn(categoryEntity);
 
-        when(fileService.createFileEntity(any(MultipartFile.class))).thenReturn(new FileEntity());
+        when(fileService.createFileEntity(any(), any())).thenReturn(new FileEntity());
 
         when(fileService.getFileEntityByFile(anyCollection(), any(MultipartFile.class)))
                 .thenReturn(Optional.of(new FileEntity()));
@@ -138,7 +143,11 @@ public class ProductServiceTest {
         createProductDto.setStockQuantity(10);
         createProductDto.setCategoryId(UUID.randomUUID());
         MultipartFile[] images = new MultipartFile[1];
-        createProductDto.setImages(images);
+        images[0] = Mockito.mock(MultipartFile.class);
+        FileDto fileDto = new FileDto();
+        fileDto.setFile(images[0]);
+        fileDto.setOrder(1);
+        createProductDto.setImages(List.of(fileDto));
         createProductDto.setAttributesValuesToSave(new HashMap<>());
 
         // Assuming the error code is 404 for not found
@@ -485,16 +494,20 @@ public class ProductServiceTest {
         UUID productId = UUID.randomUUID();
         ProductEntity productEntity = createProductEntity(productId);
         UpdateProductDto updateProductDto = new UpdateProductDto();
-        MultipartFile[] imagesToAdd = new MultipartFile[]{mock(MultipartFile.class)};
-        updateProductDto.setImagesToAdd(imagesToAdd);
+        MultipartFile[] images = new MultipartFile[1];
+        images[0] = Mockito.mock(MultipartFile.class);
+        FileDto fileDto = new FileDto();
+        fileDto.setFile(images[0]);
+        fileDto.setOrder(1);
+        updateProductDto.setImagesToAdd(Arrays.asList(fileDto));
 
         when(productRepository.findByIdWithFetchedImagesAndCategoryAndAttributes(productId))
                 .thenReturn(Optional.of(productEntity));
-        when(fileService.createFileEntity(any())).thenReturn(new FileEntity());
+        when(fileService.createFileEntity(any(), any())).thenReturn(new FileEntity());
 
         productService.update(productId, updateProductDto);
 
-        verify(fileService).createFileEntity(imagesToAdd[0]);
+        verify(fileService).createFileEntity(fileDto, productEntity);
         verify(productRepository).saveAndFlush(productEntity);
     }
 
@@ -673,9 +686,8 @@ public class ProductServiceTest {
     @Test
     void testSetImagesWithEmptyArray() {
         ProductEntity product = new ProductEntity();
-        MultipartFile[] images = new MultipartFile[0];
 
-        productService.setImages(product, images);
+        productService.setImages(product, Collections.emptyList());
 
         // Assert that no images are added to the product
         assertEquals(0, product.getImages().size(), "Product should have no images.");
@@ -691,19 +703,22 @@ public class ProductServiceTest {
         ProductEntity product = new ProductEntity();
         MultipartFile image1 = mock(MultipartFile.class);
         MultipartFile image2 = mock(MultipartFile.class);
-        MultipartFile[] images = new MultipartFile[]{image1, image2};
+        FileDto fileDto1 = new FileDto();
+        FileDto fileDto2 = new FileDto();
+        fileDto1.setFile(image1);
+        fileDto1.setOrder(1);
+        fileDto2.setFile(image2);
+        fileDto2.setOrder(2);
 
         FileEntity fileEntity1 = new FileEntity("image1.jpg", "directory1");
         FileEntity fileEntity2 = new FileEntity("image2.jpg", "directory2");
 
-        when(fileService.createFileEntity(image1)).thenReturn(fileEntity1);
-        when(fileService.createFileEntity(image2)).thenReturn(fileEntity2);
+        when(fileService.createFileEntity(fileDto1, product)).thenReturn(fileEntity1);
+        when(fileService.createFileEntity(fileDto2, product)).thenReturn(fileEntity2);
 
-        productService.setImages(product, images);
+        productService.setImages(product, Arrays.asList(fileDto1, fileDto2));
 
         // Assert that both images are added to the product
         assertEquals(2, product.getImages().size(), "Product should have two images.");
-        assertEquals(product, fileEntity1.getProduct(), "FileEntity1 should be associated with the product.");
-        assertEquals(product, fileEntity2.getProduct(), "FileEntity2 should be associated with the product.");
     }
 }

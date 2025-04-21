@@ -3,13 +3,17 @@ package com.deye.web.util.mapper;
 import com.deye.web.controller.dto.response.AttributeResponseDto;
 import com.deye.web.controller.dto.response.ImageResponseDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
+import com.deye.web.entity.FileEntity;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.service.FileService;
 import com.deye.web.service.file.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -29,13 +33,13 @@ public class ProductMapper {
             for (String fileName : fileNames) {
                 ImageResponseDto imageDto = new ImageResponseDto();
                 String link = fileStorageService.getAccessLink(directoryName, fileName);
-                UUID fileId = product.getImages().stream()
+                FileEntity file = product.getImages().stream()
                         .filter(image -> image.getName().equals(fileName))
                         .findAny()
-                        .get()
-                        .getId();
+                        .get();
                 imageDto.setLink(link);
-                imageDto.setId(fileId);
+                imageDto.setId(file.getId());
+                imageDto.setOrder(file.getOrder());
                 images.add(imageDto);
             }
         }

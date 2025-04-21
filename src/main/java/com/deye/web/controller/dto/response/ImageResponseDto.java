@@ -10,4 +10,5 @@ import java.util.UUID;
 public class ImageResponseDto {
     private UUID id;
     private String link;
+    private Integer order;
 }

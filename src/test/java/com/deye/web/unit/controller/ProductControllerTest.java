@@ -2,6 +2,7 @@ package com.deye.web.unit.controller;
 
 import com.deye.web.controller.ProductController;
 import com.deye.web.controller.dto.CreateProductDto;
+import com.deye.web.controller.dto.FileDto;
 import com.deye.web.controller.dto.ProductFilterDto;
 import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
@@ -19,10 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -53,10 +51,16 @@ public class ProductControllerTest {
         createProductDto.setPrice(99.99f);
         createProductDto.setStockQuantity(10);
         createProductDto.setCategoryId(UUID.randomUUID());
-        createProductDto.setImages(new MockMultipartFile[]{
-                new MockMultipartFile("image1", "image1.jpg", "image/jpeg", new byte[]{1, 2, 3}),
-                new MockMultipartFile("image2", "image2.jpg", "image/jpeg", new byte[]{4, 5, 6})
-        });
+        List<FileDto> files = new ArrayList<>();
+        FileDto fileDto = new FileDto();
+        fileDto.setFile(new MockMultipartFile("image1", "image1.jpg", "image/jpeg", new byte[]{1, 2, 3}));
+        fileDto.setOrder(1);
+        files.add(fileDto);
+        FileDto fileDto2 = new FileDto();
+        fileDto2.setOrder(2);
+        fileDto2.setFile(new MockMultipartFile("image2", "image2.jpg", "image/jpeg", new byte[]{4, 5, 6}));
+        files.add(fileDto2);
+        createProductDto.setImages(files);
 
         // Act: Call the save method
         productController.save(createProductDto);
@@ -101,7 +105,7 @@ public class ProductControllerTest {
         updateProductDto.setDescription("This is a test product description.");
         updateProductDto.setPrice(100.0f);
         updateProductDto.setStockQuantity(10);
-        updateProductDto.setImagesToAdd(new MockMultipartFile[]{});
+        updateProductDto.setImagesToAdd(new ArrayList<>());
         updateProductDto.setImagesIdsToRemove(Collections.emptyList());
         updateProductDto.setAttributesValuesToSave(new HashMap<>());
         updateProductDto.setAttributesIdsToRemove(new HashSet<>());

@@ -55,7 +55,8 @@ public class ProductService {
         log.info("Product: {} properties are set", product.getName());
         productRepository.saveAndFlush(product);
         List<CreateImageDto> createImages = new ArrayList<>();
-        for (MultipartFile image : createProductDto.getImages()) {
+        for (FileDto fileDto : createProductDto.getImages()) {
+            MultipartFile image = fileDto.getFile();
             FileEntity file = fileService.getFileEntityByFile(product.getImages(), image).get();
             createImages.add(new CreateImageDto(image, file));
         }
@@ -76,10 +77,10 @@ public class ProductService {
         return product;
     }
 
-    public void setImages(ProductEntity product, MultipartFile[] images) {
-        for (MultipartFile image : images) {
-            FileEntity file = fileService.createFileEntity(image);
-            file.setProduct(product);
+    public void setImages(ProductEntity product, List<FileDto> images) {
+        images.sort(Comparator.comparing(FileDto::getOrder));
+        for (FileDto image : images) {
+            FileEntity file = fileService.createFileEntity(image, product);
             product.getImages().add(file);
         }
     }
@@ -136,7 +137,7 @@ public class ProductService {
     public void update(UUID id, UpdateProductDto updateProductDto) {
         log.info("Updating product by ID={}", id);
         ProductEntity product = getProductEntityById(id);
-        MultipartFile[] imagesToAdd = updateProductDto.getImagesToAdd();
+        List<FileDto> imagesToAdd = updateProductDto.getImagesToAdd();
         List<UUID> imagesIdsToRemove = updateProductDto.getImagesIdsToRemove();
         Map<UUID, Object> attributesValuesToSave = updateProductDto.getAttributesValuesToSave();
         Set<UUID> attributesIdsToRemove = updateProductDto.getAttributesIdsToRemove();
@@ -152,12 +153,16 @@ public class ProductService {
         if (updateProductDto.getStockQuantity() != null && !updateProductDto.getStockQuantity().equals(product.getStockQuantity())) {
             product.setStockQuantity(updateProductDto.getStockQuantity());
         }
-        if (imagesToAdd != null) {
-            setImages(product, imagesToAdd);
-        }
         Set<FileEntity> removedImages = Set.of();
         if (imagesIdsToRemove != null) {
             removedImages = fileService.removeFileEntitiesByIds(product.getImages(), imagesIdsToRemove);
+        }
+        MultipartFile[] filesToAdd = null;
+        if (imagesToAdd != null) {
+            setImages(product, imagesToAdd);
+            filesToAdd = imagesToAdd.stream()
+                    .map(FileDto::getFile)
+                    .toArray(MultipartFile[]::new);
         }
         if (attributesValuesToSave != null) {
             addAttributesValues(product, attributesValuesToSave);
@@ -170,7 +175,7 @@ public class ProductService {
                     .forEach(attributeEntity -> productAttributeService.removeAttributeValue(product, attributeEntity));
         }
         productRepository.saveAndFlush(product);
-        eventPublisher.publishEvent(new SavedProductEvent(product, imageMapper.toCreateImageDtoList(product.getImages(), imagesToAdd), imageMapper.toDeleteImageDtoList(removedImages)));
+        eventPublisher.publishEvent(new SavedProductEvent(product, imageMapper.toCreateImageDtoList(product.getImages(), filesToAdd), imageMapper.toDeleteImageDtoList(removedImages)));
     }
 
     private ProductEntity getProductEntityById(UUID id) {

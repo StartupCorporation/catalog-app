@@ -1,14 +1,13 @@
 package com.deye.web.controller.dto;
 
-import com.deye.web.validation.annotation.ImageType;
 import com.deye.web.validation.annotation.NotEmptyModel;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -32,8 +31,8 @@ public class UpdateProductDto {
     @PositiveOrZero(message = "Quantity on stock can't be less then 0")
     private Integer stockQuantity;
 
-    @ImageType
-    private MultipartFile[] imagesToAdd;
+    @Valid
+    private List<FileDto> imagesToAdd;
     private List<UUID> imagesIdsToRemove;
 
     @Valid

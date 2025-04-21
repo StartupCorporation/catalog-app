@@ -22,6 +22,9 @@ public class FileEntity {
     private String name;
     private String directory;
 
+    @Column(name = "sort_order")
+    private Integer order;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID")
     private ProductEntity product;
@@ -29,5 +32,18 @@ public class FileEntity {
     public FileEntity(String name, String directory) {
         this.name = name;
         this.directory = directory;
+    }
+
+    public FileEntity(String name, String directory, Integer order) {
+        this.name = name;
+        this.directory = directory;
+        this.order = order;
+    }
+
+    public FileEntity(String name, String directory, Integer order, ProductEntity product) {
+        this.name = name;
+        this.directory = directory;
+        this.order = order;
+        this.product = product;
     }
 }
