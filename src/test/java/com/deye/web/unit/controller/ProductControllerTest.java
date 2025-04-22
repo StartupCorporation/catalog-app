@@ -6,6 +6,7 @@ import com.deye.web.controller.dto.FileDto;
 import com.deye.web.controller.dto.ProductFilterDto;
 import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
+import com.deye.web.controller.dto.response.ProductResponseDtoPage;
 import com.deye.web.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -137,12 +138,12 @@ public class ProductControllerTest {
         filterDto.setCategoriesIds(Collections.singletonList(UUID.randomUUID()));
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductResponseDto> expectedPage = new PageImpl<>(Collections.emptyList());
+        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList());
 
         when(productService.getAll(filterDto, pageable)).thenReturn(expectedPage);
 
         // Act
-        ResponseEntity<Page<ProductResponseDto>> response = productController.getAll(page, size, filterDto);
+        ResponseEntity<ProductResponseDtoPage> response = productController.getAll(page, size, filterDto);
 
         // Assert
         assertEquals(ResponseEntity.ok(expectedPage), response);
@@ -161,12 +162,12 @@ public class ProductControllerTest {
         ProductFilterDto filterDto = new ProductFilterDto();
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductResponseDto> expectedPage = new PageImpl<>(Collections.emptyList());
+        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList());
 
         when(productService.getAll(filterDto, pageable)).thenReturn(expectedPage);
 
         // Act
-        ResponseEntity<Page<ProductResponseDto>> response = productController.getAll(page, size, filterDto);
+        ResponseEntity<ProductResponseDtoPage> response = productController.getAll(page, size, filterDto);
 
         // Assert
         assertEquals(ResponseEntity.ok(expectedPage), response);
@@ -186,12 +187,12 @@ public class ProductControllerTest {
         filterDto.setName("Another Product");
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductResponseDto> expectedPage = new PageImpl<>(Collections.emptyList());
+        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList());
 
         when(productService.getAll(filterDto, pageable)).thenReturn(expectedPage);
 
         // Act
-        ResponseEntity<Page<ProductResponseDto>> response = productController.getAll(page, size, filterDto);
+        ResponseEntity<ProductResponseDtoPage> response = productController.getAll(page, size, filterDto);
 
         // Assert
         assertEquals(ResponseEntity.ok(expectedPage), response);

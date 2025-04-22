@@ -4,10 +4,10 @@ import com.deye.web.controller.dto.CreateProductDto;
 import com.deye.web.controller.dto.ProductFilterDto;
 import com.deye.web.controller.dto.UpdateProductDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
+import com.deye.web.controller.dto.response.ProductResponseDtoPage;
 import com.deye.web.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +22,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<Page<ProductResponseDto>> getAll(@RequestParam int page,
-                                                           @RequestParam int size,
-                                                           @ModelAttribute @Valid ProductFilterDto productFilterDto) {
+    public ResponseEntity<ProductResponseDtoPage> getAll(@RequestParam int page,
+                                                         @RequestParam int size,
+                                                         @ModelAttribute @Valid ProductFilterDto productFilterDto) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(productService.getAll(productFilterDto, pageable));
     }

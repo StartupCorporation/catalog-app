@@ -8,6 +8,7 @@ import com.deye.web.controller.dto.*;
 import com.deye.web.controller.dto.response.AttributeResponseDto;
 import com.deye.web.controller.dto.response.ImageResponseDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
+import com.deye.web.controller.dto.response.ProductResponseDtoPage;
 import com.deye.web.entity.*;
 import com.deye.web.entity.attribute.definition.CheckboxAttributeDefinition;
 import com.deye.web.exception.EntityNotFoundException;
@@ -334,7 +335,7 @@ public class ProductServiceTest {
         when(productMapper.toProductResponseDto(productEntity)).thenReturn(productResponseDto);
 
         // Act
-        Page<ProductResponseDto> result = productService.getAll(filterDto, pageable);
+        ProductResponseDtoPage result = productService.getAll(filterDto, pageable);
 
         // Assert
         assertEquals(1, result.getTotalElements());
@@ -356,7 +357,7 @@ public class ProductServiceTest {
         when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(emptyPage);
 
         // Act
-        Page<ProductResponseDto> result = productService.getAll(filterDto, pageable);
+        ProductResponseDtoPage result = productService.getAll(filterDto, pageable);
 
         // Assert
         assertEquals(0, result.getTotalElements());

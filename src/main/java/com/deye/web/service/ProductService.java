@@ -105,14 +105,16 @@ public class ProductService {
     }
 
     @Transactional
-    public Page<ProductResponseDto> getAll(ProductFilterDto productFilterDto, Pageable pageable) {
+    public ProductResponseDtoPage getAll(ProductFilterDto productFilterDto, Pageable pageable) {
         log.info("Fetching all products");
         Page<ProductEntity> products = productRepository.findAll(productFilterSpecification.filterBy(productFilterDto), pageable);
         log.info("Found {} products", products.getTotalElements());
         List<ProductResponseDto> productResponseDtos = products.getContent().stream()
                 .map(productMapper::toProductResponseDto)
                 .collect(Collectors.toList());
-        return new ProductResponseDtoPage(productResponseDtos);
+        ProductResponseDtoPage productResponseDtoPage = new ProductResponseDtoPage(productResponseDtos);
+        productResponseDtoPage.setTotalElements(products.getTotalElements());
+        return productResponseDtoPage;
     }
 
     @Transactional
