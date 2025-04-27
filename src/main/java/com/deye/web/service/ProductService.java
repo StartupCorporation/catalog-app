@@ -19,7 +19,6 @@ import com.deye.web.util.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,14 +106,12 @@ public class ProductService {
     @Transactional
     public ProductResponseDtoPage getAll(ProductFilterDto productFilterDto, Pageable pageable) {
         log.info("Fetching all products");
-        Page<ProductEntity> products = productRepository.findAll(productFilterSpecification.filterBy(productFilterDto), pageable);
-        log.info("Found {} products", products.getTotalElements());
-        List<ProductResponseDto> productResponseDtos = products.getContent().stream()
+        List<ProductEntity> products = productRepository.findAll(productFilterSpecification.filterBy(productFilterDto));
+        log.info("Found {} products", products.size());
+        List<ProductResponseDto> productsResponseDto = products.stream()
                 .map(productMapper::toProductResponseDto)
-                .collect(Collectors.toList());
-        ProductResponseDtoPage productResponseDtoPage = new ProductResponseDtoPage(productResponseDtos);
-        productResponseDtoPage.setTotalElements(products.getTotalElements());
-        return productResponseDtoPage;
+                .toList();
+        return new ProductResponseDtoPage(productsResponseDto, pageable);
     }
 
     @Transactional

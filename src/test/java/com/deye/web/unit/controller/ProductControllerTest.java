@@ -14,8 +14,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -138,7 +136,7 @@ public class ProductControllerTest {
         filterDto.setCategoriesIds(Collections.singletonList(UUID.randomUUID()));
 
         Pageable pageable = PageRequest.of(page, size);
-        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList());
+        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList(), pageable);
 
         when(productService.getAll(filterDto, pageable)).thenReturn(expectedPage);
 
@@ -162,7 +160,7 @@ public class ProductControllerTest {
         ProductFilterDto filterDto = new ProductFilterDto();
 
         Pageable pageable = PageRequest.of(page, size);
-        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList());
+        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList(), pageable);
 
         when(productService.getAll(filterDto, pageable)).thenReturn(expectedPage);
 
@@ -187,7 +185,7 @@ public class ProductControllerTest {
         filterDto.setName("Another Product");
 
         Pageable pageable = PageRequest.of(page, size);
-        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList());
+        ProductResponseDtoPage expectedPage = new ProductResponseDtoPage(Collections.emptyList(), pageable);
 
         when(productService.getAll(filterDto, pageable)).thenReturn(expectedPage);
 

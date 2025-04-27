@@ -30,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -306,13 +307,12 @@ public class ProductServiceTest {
         filterDto.setName("Test Product");
         filterDto.setCategoriesIds(Collections.singletonList(UUID.randomUUID()));
 
-        Pageable pageable = mock(Pageable.class);
+        Pageable pageable = PageRequest.of(0, 10);
         Specification<ProductEntity> specification = mock(Specification.class);
         when(productFilterSpecification.filterBy(filterDto)).thenReturn(specification);
 
         ProductEntity productEntity = new ProductEntity();
-        Page<ProductEntity> productPage = new PageImpl<>(Collections.singletonList(productEntity));
-        when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(productPage);
+        when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(productEntity));
 
         // Use reflection to create a ProductResponseDto instance
         Constructor<ProductResponseDto> constructor = ProductResponseDto.class.getDeclaredConstructor(
@@ -340,7 +340,7 @@ public class ProductServiceTest {
         // Assert
         assertEquals(1, result.getTotalElements());
         assertEquals(productResponseDto, result.getContent().get(0));
-        verify(productRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
+        verify(productRepository, times(1)).findAll(any(Specification.class));
         verify(productMapper, times(1)).toProductResponseDto(productEntity);
     }
 
@@ -353,15 +353,14 @@ public class ProductServiceTest {
         Specification<ProductEntity> specification = mock(Specification.class);
         when(productFilterSpecification.filterBy(filterDto)).thenReturn(specification);
 
-        Page<ProductEntity> emptyPage = new PageImpl<>(Collections.emptyList());
-        when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(emptyPage);
+        when(productRepository.findAll(any(Specification.class))).thenReturn(Collections.emptyList());
 
         // Act
         ProductResponseDtoPage result = productService.getAll(filterDto, pageable);
 
         // Assert
         assertEquals(0, result.getTotalElements());
-        verify(productRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
+        verify(productRepository, times(1)).findAll(any(Specification.class));
         verify(productMapper, never()).toProductResponseDto(any());
     }
 
