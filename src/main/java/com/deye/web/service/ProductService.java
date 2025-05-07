@@ -7,6 +7,7 @@ import com.deye.web.async.util.RabbitMqEvent;
 import com.deye.web.controller.dto.*;
 import com.deye.web.controller.dto.response.ProductResponseDto;
 import com.deye.web.controller.dto.response.ProductResponseDtoPage;
+import com.deye.web.controller.dto.response.ProductShortResponseDto;
 import com.deye.web.entity.*;
 import com.deye.web.exception.EntityNotFoundException;
 import com.deye.web.exception.dlq.ActionNotAllowedSkipDLQException;
@@ -120,6 +121,16 @@ public class ProductService {
         ProductEntity product = getProductEntityById(id);
         log.info("Product found: {} ({})", product.getName(), product.getId());
         return productMapper.toProductResponseDto(product);
+    }
+
+    @Transactional
+    public List<ProductShortResponseDto> getProductsByIds(List<UUID> ids) {
+        log.info("Fetching products by ids={}", ids);
+        List<ProductEntity> products = productRepository.findAllById(ids);
+        log.info("Found {} products", products.size());
+        return products.stream()
+                .map(productMapper::toProductShortResponseDto)
+                .toList();
     }
 
     @Transactional

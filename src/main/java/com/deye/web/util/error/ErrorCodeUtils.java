@@ -19,4 +19,5 @@ public class ErrorCodeUtils {
     public static final Integer CATEGORY_ATTRIBUTE_NOT_FOUND_ERROR_CODE = 13;
     public static final Integer JWT_TOKEN_ERROR_CODE = 14;
     public static final Integer MINIO_GET_LINK_ERROR_CODE = 15;
+    public static final Integer GENERAL_ERROR_CODE = 16;
 }

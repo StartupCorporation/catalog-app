@@ -3,6 +3,7 @@ package com.deye.web.util.mapper;
 import com.deye.web.controller.dto.response.AttributeResponseDto;
 import com.deye.web.controller.dto.response.ImageResponseDto;
 import com.deye.web.controller.dto.response.ProductResponseDto;
+import com.deye.web.controller.dto.response.ProductShortResponseDto;
 import com.deye.web.entity.FileEntity;
 import com.deye.web.entity.ProductEntity;
 import com.deye.web.service.FileService;
@@ -54,5 +55,13 @@ public class ProductMapper {
                 .images(images)
                 .attributes(attributes)
                 .build();
+    }
+
+    public ProductShortResponseDto toProductShortResponseDto(ProductEntity product) {
+        ProductShortResponseDto productShortResponseDto = new ProductShortResponseDto();
+        productShortResponseDto.setId(product.getId());
+        productShortResponseDto.setName(product.getName());
+        productShortResponseDto.setPrice(product.getPrice().intValue());
+        return productShortResponseDto;
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -50,6 +51,14 @@ public class CommonExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleWrongRequestBodyException(WrongRequestBodyException e) {
         ErrorResponseDto errorResponseDto = new ErrorResponseDto();
         errorResponseDto.setCode(e.getCode());
+        errorResponseDto.setMessage(e.getMessage());
+        return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+        errorResponseDto.setCode(ErrorCodeUtils.GENERAL_ERROR_CODE);
         errorResponseDto.setMessage(e.getMessage());
         return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
     }
