@@ -19,7 +19,7 @@ import java.util.UUID;
 public class RabbitMqMessageMapper {
     private final Gson gson;
 
-    public String toDeletedProductMessage(Set<UUID> productsIds) {
+    public DeletedProductsMessage toDeletedProductMessage(Set<UUID> productsIds) {
         DeletedProductsMessage deletedProductsMessage = new DeletedProductsMessage();
         deletedProductsMessage.setId(UUID.randomUUID());
         deletedProductsMessage.setCreated_at(LocalDateTime.now());
@@ -27,10 +27,10 @@ public class RabbitMqMessageMapper {
         DeletedProductsMessage.DeletedProductPayload deletedProductsPayload = new DeletedProductsMessage.DeletedProductPayload();
         deletedProductsPayload.setIds(productsIds);
         deletedProductsMessage.setData(deletedProductsPayload);
-        return gson.toJson(deletedProductsMessage);
+        return deletedProductsMessage;
     }
 
-    public String toReservationResultMessage(UUID orderId, RabbitMqEvent rabbitMqEvent) {
+    public ReservationResultMessage toReservationResultMessage(UUID orderId, RabbitMqEvent rabbitMqEvent) {
         if (rabbitMqEvent != null && !RabbitMqEvent.getReservationResultEvents().contains(rabbitMqEvent)) {
             log.error("{} is not an reservation result event", rabbitMqEvent);
             throw new ActionNotAllowedException("The reservation result event is not allowed");
@@ -42,6 +42,6 @@ public class RabbitMqMessageMapper {
         ReservationResultMessage.ReservationResultPayload reservationResultPayload = new ReservationResultMessage.ReservationResultPayload();
         reservationResultPayload.setOrder_id(orderId);
         reservationResultMessage.setData(reservationResultPayload);
-        return gson.toJson(reservationResultMessage);
+        return reservationResultMessage;
     }
 }

@@ -1,6 +1,8 @@
 package com.deye.web.async.publisher.impl;
 
 import com.deye.web.async.RabbitMqProducer;
+import com.deye.web.async.message.DeletedProductsMessage;
+import com.deye.web.async.message.ReservationResultMessage;
 import com.deye.web.async.publisher.PublisherService;
 import com.deye.web.async.util.RabbitMqEvent;
 import com.deye.web.async.util.mapper.RabbitMqMessageMapper;
@@ -30,7 +32,7 @@ public class RabbitMqPublisherService implements PublisherService {
 
     @Override
     public void onProductsDeleted(Set<UUID> productsIds) {
-        String message = rabbitMqMessageMapper.toDeletedProductMessage(productsIds);
+        DeletedProductsMessage message = rabbitMqMessageMapper.toDeletedProductMessage(productsIds);
         try {
             rabbitMqProducer.send(exchangeName, productCommentQueueRoutingKey, message);
             log.info("Message on product deleted successfully sent to RabbitMQ, message:{}", message);
@@ -42,7 +44,7 @@ public class RabbitMqPublisherService implements PublisherService {
 
     @Override
     public void onReservationResult(UUID orderId, RabbitMqEvent rabbitMqEvent) {
-        String message = rabbitMqMessageMapper.toReservationResultMessage(orderId, rabbitMqEvent);
+        ReservationResultMessage message = rabbitMqMessageMapper.toReservationResultMessage(orderId, rabbitMqEvent);
         try {
             rabbitMqProducer.send(exchangeName, orderQueueRoutingKey, message);
             log.info("Message on reservation result sent to RabbitMQ, message:{}", message);
